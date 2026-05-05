@@ -1,0 +1,152 @@
+import SwiftUI
+import SwiftData
+import WidgetKit
+
+struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \DayEvent.targetDate) private var events: [DayEvent]
+    @EnvironmentObject private var storeKitManager: StoreKitManager
+    @State private var showingAddSheet = false
+    @State private var showingPaywall = false
+    @State private var showingCalendar = false
+    @State private var eventToEdit: DayEvent? = nil
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                // Subtle aesthetic background
+                LinearGradient(
+                    colors: [Color(uiColor: .systemBackground), Color(uiColor: .secondarySystemBackground)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
+
+                if events.isEmpty {
+                    emptyState
+                } else {
+                    ScrollView {
+                        LazyVStack(spacing: 16) {
+                            ForEach(events) { event in
+                                EventCardView(event: event)
+                                    .onTapGesture {
+                                        eventToEdit = event
+                                    }
+                                    .contextMenu {
+                                        if #available(iOS 16.1, *) {
+                                            Button {
+                                                LiveActivityManager.shared.startLiveActivity(for: event)
+                                            } label: {
+                                                Label("Pin to Lock Screen", systemImage: "pin")
+                                            }
+                                        }
+                                        
+                                        Button(role: .destructive) {
+                                            deleteEvent(event)
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
+                            }
+                        }
+                        .padding()
+                    }
+                }
+            }
+            .navigationTitle("DayZero")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack(spacing: 16) {
+                        Button {
+                            if !storeKitManager.isPro {
+                                showingPaywall = true
+                            } else {
+                                showingCalendar = true
+                            }
+                        } label: {
+                            Image(systemName: "calendar.badge.plus")
+                                .font(.title3)
+                                .foregroundColor(.primary)
+                        }
+                        
+                        Button {
+                            if events.count >= 2 && !storeKitManager.isPro {
+                                showingPaywall = true
+                            } else {
+                                showingAddSheet = true
+                            }
+                        } label: {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(.primary)
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showingAddSheet) {
+                AddEventSheet()
+            }
+            .sheet(item: $eventToEdit) { event in
+                AddEventSheet(eventToEdit: event)
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
+            }
+            .sheet(isPresented: $showingCalendar) {
+                CalendarImportView()
+            }
+        }
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 60))
+                .foregroundColor(.accentColor)
+                .padding()
+                .background(Color.accentColor.opacity(0.1))
+                .clipShape(Circle())
+            
+            Text("Create your first DayZero")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text("Count down to moments that matter with aesthetic widgets.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            Button {
+                if events.count >= 2 && !storeKitManager.isPro {
+                    showingPaywall = true
+                } else {
+                    showingAddSheet = true
+                }
+            } label: {
+                Text("Get Started")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.primary)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .padding(.horizontal, 40)
+            }
+            .padding(.top, 10)
+        }
+    }
+    
+    private func deleteEvent(_ event: DayEvent) {
+        withAnimation {
+            modelContext.delete(event)
+            try? modelContext.save()
+            WidgetCenter.shared.reloadAllTimelines()
+        }
+    }
+}
+
+#Preview {
+    ContentView()
+        .modelContainer(for: DayEvent.self, inMemory: true)
+}

@@ -1,0 +1,60 @@
+name: DayZero
+options:
+  bundleIdPrefix: com.dayzero
+targets:
+  DayZero:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    settings:
+      base:
+        DEVELOPMENT_TEAM: ZS89AATCJ2
+        CODE_SIGN_STYLE: Automatic
+    entitlements:
+      path: DayZero.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.dayzero.shared
+    scheme:
+      testTargets: []
+    sources:
+      - path: .
+        excludes:
+          - project.yml
+          - DayZeroWidget
+    info:
+      path: Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        NSSupportsLiveActivities: true
+        NSCalendarsUsageDescription: "DayZero needs access to your calendar to import your events automatically."
+        NSCalendarsFullAccessUsageDescription: "DayZero needs full access to your calendar to read your upcoming events and import them."
+        NSPhotoLibraryUsageDescription: "DayZero needs access to your photos to attach memories to your events."
+        NSCameraUsageDescription: "DayZero needs access to your camera to capture memories for your events."
+    dependencies:
+      - target: DayZeroWidget
+
+  DayZeroWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    settings:
+      base:
+        DEVELOPMENT_TEAM: ZS89AATCJ2
+        CODE_SIGN_STYLE: Automatic
+        PRODUCT_BUNDLE_IDENTIFIER: com.dayzero.DayZero.DayZeroWidget
+    entitlements:
+      path: DayZeroWidget/DayZeroWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.dayzero.shared
+    info:
+      path: DayZeroWidget/Info.plist
+      properties:
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    sources:
+      - path: DayZeroWidget
+      - path: Models
