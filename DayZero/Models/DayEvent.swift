@@ -10,14 +10,19 @@ final class DayEvent {
     var themeColorHex: String
     var iconName: String
     var createdAt: Date
-    
-    // Determines if this event requires a premium subscription to be active/created
     var isPremium: Bool
     
-    // Pro features
+    // MVP Core Properties
     var notes: String = ""
-    var mediaFileNames: [String] = []
-    var timerPreference: Int = 0 // 0: Auto, 1: Days Only, 2: Timer Always
+    var calendarEventId: String?
+    
+    // Pro Customization
+    var fontName: String = "System"
+    var timerPreference: Int = 0 
+    
+    // One-to-Many relationship for Milestones
+    @Relationship(deleteRule: .cascade, inverse: \EventTask.event)
+    var tasks: [EventTask]? = []
     
     init(title: String, targetDate: Date, themeColorHex: String = "#FFB6C1", iconName: String = "star.fill", isPremium: Bool = false) {
         self.id = UUID()
@@ -30,7 +35,5 @@ final class DayEvent {
     }
     
     @Transient
-    var themeColor: Color {
-        Color(hex: themeColorHex) ?? .blue
-    }
+    var themeColor: Color { Color(hex: themeColorHex) ?? .blue }
 }

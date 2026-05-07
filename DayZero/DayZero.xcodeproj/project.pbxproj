@@ -7,29 +7,34 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		04AD853333B3123AA12D5AF8 /* CalendarManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12F12510FF5CE57B0D3A0CA7 /* CalendarManager.swift */; };
 		08DD2E9615AB1ED0D0F93F2B /* DayZeroWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E8EBCF11F9009E9C095CF64 /* DayZeroWidget.swift */; };
+		0F7C5D879FEFC3DB58AAEEEF /* EventTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E5AAF37A51042891163D7D /* EventTask.swift */; };
 		10D8429B74C426C2CF9F8260 /* Store.storekit in Resources */ = {isa = PBXBuildFile; fileRef = 2F50FBC5F592A73EC268C11A /* Store.storekit */; };
 		14CFCA84BC873E9637CDE653 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A968BB88CEE25FE2399C17A /* StoreKitManager.swift */; };
 		35B6A60486D7B49DD6E55572 /* GlassmorphicEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB6BED4CE29F55AB7B4DFF14 /* GlassmorphicEffect.swift */; };
 		3954783FCCA3122AFFB1DE8A /* DayEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A563AA9616B77E0CD48B632C /* DayEvent.swift */; };
 		4597F257394D7102CDE9D62D /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C370B470754A42AC4CD304 /* Theme.swift */; };
+		4DB20B253FFCA404F5D2AEEA /* CalendarImportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CEC3B3736D611C867218A9D /* CalendarImportManager.swift */; };
 		51506BA089F696C1BB2B3D55 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C370B470754A42AC4CD304 /* Theme.swift */; };
 		5F4F6A2602C97105D56F02B7 /* DayZeroAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E9E84D5F366EBEB4AE1831 /* DayZeroAttributes.swift */; };
 		84E9CD2F6ED77907C8C07717 /* DayZeroWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ED9EC3436E3351B57BAEC254 /* DayZeroWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8570406A8FB3FB36D53B1280 /* DayZero.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */; };
 		85BEE5DA3B7D7DEE6CD21E47 /* ShareHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4AF17F0191AAEA080D9FD2 /* ShareHelper.swift */; };
+		8E0F57544AA66F58834EAA4F /* AntigravityStyles.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4999E1268C9575E893391E /* AntigravityStyles.swift */; };
 		9610AADA84F029A71650D07C /* AddEventSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F5EE915EA2ED58231BEB628 /* AddEventSheet.swift */; };
 		AD00BD990F4B8A182AA5A98C /* MediaManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FEBA55A737F8E7C2E37B438 /* MediaManager.swift */; };
 		B5344F35F683131504D0A12D /* DayEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = A563AA9616B77E0CD48B632C /* DayEvent.swift */; };
 		B77EBF976CF759403AFCC57B /* DayZeroAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E9E84D5F366EBEB4AE1831 /* DayZeroAttributes.swift */; };
-		BC32C4569C151FE61EEC4F77 /* CalendarImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB47BDF3DF6B9BB24C4AD57A /* CalendarImportView.swift */; };
 		C74023A9EFD38E9A17EA59F6 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32682768DCBD6AC8C5BF9C65 /* ContentView.swift */; };
 		C7B4A9C55F3B3863EEC2B01F /* DayZeroApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F9737A7077673170F664C1D /* DayZeroApp.swift */; };
 		D0FD08D869169DD307FCE8AC /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F87BDD5AFAF4C625D9931959 /* PaywallView.swift */; };
+		D4EEC0A11ADADD02A4B31D0F /* EventTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E5AAF37A51042891163D7D /* EventTask.swift */; };
+		D99A6300655BF36F6DF38611 /* SmartImportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917521902C57F2250CB8B27E /* SmartImportSheet.swift */; };
+		DF3DFD1C062B228D16A3C455 /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829F518630EFCD6CCF45E7D5 /* EventDetailView.swift */; };
 		E45A69E8EB3E7F6C10D09EAE /* EventCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC340D9802CC0FFFBEAF297D /* EventCardView.swift */; };
 		E5BFFDBB109FECA0EF8DB302 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0070921CC15EBD7FFDCE68B /* CameraPicker.swift */; };
 		FAE4FDB60D211977E6639846 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A51C14C3F3F9DB1581A6EE /* LiveActivityManager.swift */; };
+		FE53779CC2413D8318C183DF /* build_output.txt in Resources */ = {isa = PBXBuildFile; fileRef = 76B37A3118C5F13D1F7BB93D /* build_output.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,9 +62,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		12F12510FF5CE57B0D3A0CA7 /* CalendarManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarManager.swift; sourceTree = "<group>"; };
 		1D4AF17F0191AAEA080D9FD2 /* ShareHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareHelper.swift; sourceTree = "<group>"; };
 		23CA9EAAA7B43E35E2C27EEE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2CEC3B3736D611C867218A9D /* CalendarImportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImportManager.swift; sourceTree = "<group>"; };
 		2E8EBCF11F9009E9C095CF64 /* DayZeroWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayZeroWidget.swift; sourceTree = "<group>"; };
 		2F50FBC5F592A73EC268C11A /* Store.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Store.storekit; sourceTree = "<group>"; };
 		2F5EE915EA2ED58231BEB628 /* AddEventSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventSheet.swift; sourceTree = "<group>"; };
@@ -69,11 +74,13 @@
 		51E9E84D5F366EBEB4AE1831 /* DayZeroAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayZeroAttributes.swift; sourceTree = "<group>"; };
 		5BB8D5E8C7B988D5BE1F7312 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5C37FC7DE44DBB6A88455E50 /* DayZero.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DayZero.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		76B37A3118C5F13D1F7BB93D /* build_output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = build_output.txt; sourceTree = "<group>"; };
+		829F518630EFCD6CCF45E7D5 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
 		8FEBA55A737F8E7C2E37B438 /* MediaManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaManager.swift; sourceTree = "<group>"; };
+		917521902C57F2250CB8B27E /* SmartImportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartImportSheet.swift; sourceTree = "<group>"; };
 		A563AA9616B77E0CD48B632C /* DayEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayEvent.swift; sourceTree = "<group>"; };
 		B723C8DDB91197EF9D133D7B /* DayZero.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DayZero.entitlements; sourceTree = "<group>"; };
 		BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = DayZero.xcodeproj; sourceTree = "<group>"; };
-		CB47BDF3DF6B9BB24C4AD57A /* CalendarImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarImportView.swift; sourceTree = "<group>"; };
 		D0070921CC15EBD7FFDCE68B /* CameraPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPicker.swift; sourceTree = "<group>"; };
 		D9C370B470754A42AC4CD304 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		DB6BED4CE29F55AB7B4DFF14 /* GlassmorphicEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassmorphicEffect.swift; sourceTree = "<group>"; };
@@ -81,6 +88,8 @@
 		E2A51C14C3F3F9DB1581A6EE /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		EB3A6EECAEB7CA8B3A35A99F /* DayZeroWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DayZeroWidget.entitlements; sourceTree = "<group>"; };
 		ED9EC3436E3351B57BAEC254 /* DayZeroWidget.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = DayZeroWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF4999E1268C9575E893391E /* AntigravityStyles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AntigravityStyles.swift; sourceTree = "<group>"; };
+		F4E5AAF37A51042891163D7D /* EventTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventTask.swift; sourceTree = "<group>"; };
 		F87BDD5AFAF4C625D9931959 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -90,6 +99,7 @@
 			children = (
 				5E7B224F6F408F9E13873C8E /* DayZero */,
 				E59AB99F8C14D5232E1BB646 /* DayZeroWidget */,
+				4838FB668FA88412A27B861F /* Managers */,
 				34D7900065D648E38ACEB75A /* Models */,
 				8C1B95CDF3F0003561B5E20F /* Views */,
 				E93BA581781C8F6052B4FC3C /* Products */,
@@ -101,20 +111,29 @@
 			children = (
 				A563AA9616B77E0CD48B632C /* DayEvent.swift */,
 				51E9E84D5F366EBEB4AE1831 /* DayZeroAttributes.swift */,
+				F4E5AAF37A51042891163D7D /* EventTask.swift */,
 				D9C370B470754A42AC4CD304 /* Theme.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
 		};
-		4116305E2FA6C72100F66ADB /* Products */ = {
+		412A6BCD2FACAFD6007B5FF5 /* Products */ = {
 			isa = PBXGroup;
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4838FB668FA88412A27B861F /* Managers */ = {
+			isa = PBXGroup;
+			children = (
+				2CEC3B3736D611C867218A9D /* CalendarImportManager.swift */,
+			);
+			path = Managers;
 			sourceTree = "<group>";
 		};
 		5E7B224F6F408F9E13873C8E /* DayZero */ = {
 			isa = PBXGroup;
 			children = (
-				12F12510FF5CE57B0D3A0CA7 /* CalendarManager.swift */,
+				76B37A3118C5F13D1F7BB93D /* build_output.txt */,
 				32682768DCBD6AC8C5BF9C65 /* ContentView.swift */,
 				B723C8DDB91197EF9D133D7B /* DayZero.entitlements */,
 				BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */,
@@ -134,10 +153,11 @@
 			isa = PBXGroup;
 			children = (
 				2F5EE915EA2ED58231BEB628 /* AddEventSheet.swift */,
-				CB47BDF3DF6B9BB24C4AD57A /* CalendarImportView.swift */,
 				D0070921CC15EBD7FFDCE68B /* CameraPicker.swift */,
 				DC340D9802CC0FFFBEAF297D /* EventCardView.swift */,
+				829F518630EFCD6CCF45E7D5 /* EventDetailView.swift */,
 				F87BDD5AFAF4C625D9931959 /* PaywallView.swift */,
+				917521902C57F2250CB8B27E /* SmartImportSheet.swift */,
 				A42A1CEEAFA0C9FDE217E1A1 /* Components */,
 			);
 			path = Views;
@@ -146,6 +166,7 @@
 		A42A1CEEAFA0C9FDE217E1A1 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				EF4999E1268C9575E893391E /* AntigravityStyles.swift */,
 				DB6BED4CE29F55AB7B4DFF14 /* GlassmorphicEffect.swift */,
 			);
 			path = Components;
@@ -243,7 +264,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 4116305E2FA6C72100F66ADB /* Products */;
+					ProductGroup = 412A6BCD2FACAFD6007B5FF5 /* Products */;
 					ProjectRef = BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */;
 				},
 			);
@@ -262,6 +283,7 @@
 			files = (
 				8570406A8FB3FB36D53B1280 /* DayZero.xcodeproj in Resources */,
 				10D8429B74C426C2CF9F8260 /* Store.storekit in Resources */,
+				FE53779CC2413D8318C183DF /* build_output.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,19 +295,22 @@
 			buildActionMask = 2147483647;
 			files = (
 				9610AADA84F029A71650D07C /* AddEventSheet.swift in Sources */,
-				BC32C4569C151FE61EEC4F77 /* CalendarImportView.swift in Sources */,
-				04AD853333B3123AA12D5AF8 /* CalendarManager.swift in Sources */,
+				8E0F57544AA66F58834EAA4F /* AntigravityStyles.swift in Sources */,
+				4DB20B253FFCA404F5D2AEEA /* CalendarImportManager.swift in Sources */,
 				E5BFFDBB109FECA0EF8DB302 /* CameraPicker.swift in Sources */,
 				C74023A9EFD38E9A17EA59F6 /* ContentView.swift in Sources */,
 				3954783FCCA3122AFFB1DE8A /* DayEvent.swift in Sources */,
 				C7B4A9C55F3B3863EEC2B01F /* DayZeroApp.swift in Sources */,
 				5F4F6A2602C97105D56F02B7 /* DayZeroAttributes.swift in Sources */,
 				E45A69E8EB3E7F6C10D09EAE /* EventCardView.swift in Sources */,
+				DF3DFD1C062B228D16A3C455 /* EventDetailView.swift in Sources */,
+				D4EEC0A11ADADD02A4B31D0F /* EventTask.swift in Sources */,
 				35B6A60486D7B49DD6E55572 /* GlassmorphicEffect.swift in Sources */,
 				FAE4FDB60D211977E6639846 /* LiveActivityManager.swift in Sources */,
 				AD00BD990F4B8A182AA5A98C /* MediaManager.swift in Sources */,
 				D0FD08D869169DD307FCE8AC /* PaywallView.swift in Sources */,
 				85BEE5DA3B7D7DEE6CD21E47 /* ShareHelper.swift in Sources */,
+				D99A6300655BF36F6DF38611 /* SmartImportSheet.swift in Sources */,
 				14CFCA84BC873E9637CDE653 /* StoreKitManager.swift in Sources */,
 				51506BA089F696C1BB2B3D55 /* Theme.swift in Sources */,
 			);
@@ -298,6 +323,7 @@
 				B5344F35F683131504D0A12D /* DayEvent.swift in Sources */,
 				B77EBF976CF759403AFCC57B /* DayZeroAttributes.swift in Sources */,
 				08DD2E9615AB1ED0D0F93F2B /* DayZeroWidget.swift in Sources */,
+				0F7C5D879FEFC3DB58AAEEEF /* EventTask.swift in Sources */,
 				4597F257394D7102CDE9D62D /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

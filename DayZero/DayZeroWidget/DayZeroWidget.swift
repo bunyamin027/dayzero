@@ -139,14 +139,23 @@ struct DayZeroLiveActivity: Widget {
                         Text(context.attributes.eventTitle)
                             .font(.headline)
                             .foregroundColor(.white)
-                        Text("\(context.state.daysRemaining) days left")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
+                        
+                        if context.attributes.targetDate > Date() {
+                            Text(timerInterval: Date()...context.attributes.targetDate, countsDown: true)
+                                .font(.subheadline)
+                                .monospacedDigit()
+                                .foregroundColor(.white.opacity(0.8))
+                        } else {
+                            Text("Event Passed")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
                     }
                     
                     Spacer()
                     
-                    Text("\(context.state.daysRemaining)")
+                    let daysLeft = Calendar.current.dateComponents([.day], from: Date(), to: context.attributes.targetDate).day ?? 0
+                    Text("\(max(0, daysLeft))")
                         .font(.system(size: 32, weight: .bold, design: .rounded))
                         .foregroundColor(.white)
                 }
@@ -172,9 +181,16 @@ struct DayZeroLiveActivity: Widget {
                         .font(.headline)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    Text("\(context.state.daysRemaining) days remaining")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
+                    if context.attributes.targetDate > Date() {
+                        Text(timerInterval: Date()...context.attributes.targetDate, countsDown: true)
+                            .font(.caption)
+                            .monospacedDigit()
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("Event Passed")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
                 }
             } compactLeading: {
                 Image(systemName: context.attributes.eventIcon)

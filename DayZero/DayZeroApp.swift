@@ -9,6 +9,7 @@ struct DayZeroApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             DayEvent.self,
+            EventTask.self
         ])
         
         guard let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.dayzero.shared")?.appendingPathComponent("DayZero.sqlite") else {

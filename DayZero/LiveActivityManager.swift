@@ -16,7 +16,8 @@ class LiveActivityManager {
         let attributes = DayZeroAttributes(
             eventTitle: event.title,
             eventIcon: event.iconName,
-            themeColorHex: event.themeColorHex
+            themeColorHex: event.themeColorHex,
+            targetDate: event.targetDate
         )
         
         let contentState = DayZeroAttributes.ContentState(daysRemaining: abs(daysRemaining))

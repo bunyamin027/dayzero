@@ -6,22 +6,18 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \DayEvent.targetDate) private var events: [DayEvent]
     @EnvironmentObject private var storeKitManager: StoreKitManager
+    
     @State private var showingAddSheet = false
     @State private var showingPaywall = false
     @State private var showingCalendar = false
-    @State private var eventToEdit: DayEvent? = nil
+    @State private var selectedEvent: DayEvent? = nil
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Subtle aesthetic background
-                LinearGradient(
-                    colors: [Color(uiColor: .systemBackground), Color(uiColor: .secondarySystemBackground)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
-
+                // Background
+                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
+                
                 if events.isEmpty {
                     emptyState
                 } else {
@@ -30,7 +26,7 @@ struct ContentView: View {
                             ForEach(events) { event in
                                 EventCardView(event: event)
                                     .onTapGesture {
-                                        eventToEdit = event
+                                        selectedEvent = event
                                     }
                                     .contextMenu {
                                         if #available(iOS 16.1, *) {
@@ -54,6 +50,7 @@ struct ContentView: View {
                 }
             }
             .navigationTitle("DayZero")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
@@ -70,7 +67,7 @@ struct ContentView: View {
                         }
                         
                         Button {
-                            if events.count >= 2 && !storeKitManager.isPro {
+                            if events.count >= 3 && !storeKitManager.isPro {
                                 showingPaywall = true
                             } else {
                                 showingAddSheet = true
@@ -86,20 +83,21 @@ struct ContentView: View {
             .sheet(isPresented: $showingAddSheet) {
                 AddEventSheet()
             }
-            .sheet(item: $eventToEdit) { event in
+            .sheet(item: $selectedEvent) { event in
                 AddEventSheet(eventToEdit: event)
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
             .sheet(isPresented: $showingCalendar) {
-                CalendarImportView()
+                SmartImportSheet()
             }
         }
     }
 
     private var emptyState: some View {
         VStack(spacing: 20) {
+            Spacer()
             Image(systemName: "sparkles")
                 .font(.system(size: 60))
                 .foregroundColor(.accentColor)
@@ -107,22 +105,18 @@ struct ContentView: View {
                 .background(Color.accentColor.opacity(0.1))
                 .clipShape(Circle())
             
-            Text("Create your first DayZero")
+            Text("No countdowns yet")
                 .font(.title2)
                 .fontWeight(.bold)
             
-            Text("Count down to moments that matter with aesthetic widgets.")
+            Text("Start tracking the moments that matter.")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 40)
             
             Button {
-                if events.count >= 2 && !storeKitManager.isPro {
-                    showingPaywall = true
-                } else {
-                    showingAddSheet = true
-                }
+                showingAddSheet = true
             } label: {
                 Text("Get Started")
                     .font(.headline)
@@ -130,10 +124,10 @@ struct ContentView: View {
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color.primary)
-                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .continuousCorner(radius: 16)
                     .padding(.horizontal, 40)
             }
-            .padding(.top, 10)
+            Spacer()
         }
     }
     
@@ -144,9 +138,4 @@ struct ContentView: View {
             WidgetCenter.shared.reloadAllTimelines()
         }
     }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: DayEvent.self, inMemory: true)
 }

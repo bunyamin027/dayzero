@@ -38,18 +38,18 @@ struct PaywallView: View {
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .foregroundColor(.white)
                 
-                Text("Unlock unlimited events, exclusive themes, and premium icons.")
+                Text("Unlock the full potential of DayZero. Aesthetic control, smart automation, and unlimited moments.")
                     .font(.body)
                     .foregroundColor(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 40)
                 
                 VStack(alignment: .leading, spacing: 16) {
-                    FeatureRow(icon: "infinity", text: "Unlimited Events")
-                    FeatureRow(icon: "calendar.badge.plus", text: "Sync Apple/Google Calendar")
-                    FeatureRow(icon: "timer", text: "High-Precision Live Timers")
-                    FeatureRow(icon: "paintpalette.fill", text: "Premium Themes & Icons")
-                    FeatureRow(icon: "faceid", text: "Face ID App Lock")
+                    FeatureRow(icon: "wand.and.stars", text: "Smart Calendar Import")
+                    FeatureRow(icon: "infinity", text: "Unlimited Active Events")
+                    FeatureRow(icon: "timer", text: "Live Activity (Second-by-Second)")
+                    FeatureRow(icon: "paintpalette.fill", text: "Premium Neon Themes & Fonts")
+                    FeatureRow(icon: "icloud.fill", text: "iCloud Sync Across Devices")
                 }
                 .padding(.vertical, 20)
                 

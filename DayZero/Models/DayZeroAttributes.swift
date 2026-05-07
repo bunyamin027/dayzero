@@ -11,4 +11,5 @@ struct DayZeroAttributes: ActivityAttributes {
     var eventTitle: String
     var eventIcon: String
     var themeColorHex: String
+    var targetDate: Date // Added for second-based tracking
 }

@@ -3,6 +3,16 @@ import SwiftUI
 enum Theme {
     static let modernPastels = ["#FFB6C1", "#AEC6CF", "#B39EB5", "#FFD1DC", "#FDFD96"]
     static let darkAcademia = ["#2C3E50", "#4A4E69", "#9A8C98", "#C9ADA7", "#F2E9E4"]
+    static let neon = ["#FF00FF", "#00FFFF", "#00FF00", "#FFFF00", "#FF0000"]
+    
+    static let premiumFonts = [
+        "System",
+        "AvenirNext-Bold",
+        "Georgia-Bold",
+        "Courier-Bold",
+        "MarkerFelt-Wide",
+        "Noteworthy-Bold"
+    ]
 }
 
 // Hex Color Extension

@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 import WidgetKit
-import PhotosUI
 
 struct AddEventSheet: View {
     @Environment(\.dismiss) private var dismiss
@@ -10,303 +9,204 @@ struct AddEventSheet: View {
     
     var eventToEdit: DayEvent?
     
+    // State Management
     @State private var title: String
     @State private var targetDate: Date
-    @State private var selectedThemeHex: String
-    @State private var selectedIcon: String
     @State private var notes: String
-    @State private var timerPreference: Int
-    
-    @State private var tempMediaFileNames: [String]
-    @State private var loadedImages: [UIImage] = []
-    
-    @State private var showingCamera = false
-    @State private var selectedPhotoItem: PhotosPickerItem?
-    
-    let icons = ["star.fill", "heart.fill", "calendar", "airplane", "gift.fill", "graduationcap.fill", "briefcase.fill", "house.fill"]
+    @State private var selectedThemeHex: String
+    @State private var newTaskTitle = ""
+    @State private var showingPaywall = false
+    @State private var showingCalendarSync = false
     
     init(eventToEdit: DayEvent? = nil) {
         self.eventToEdit = eventToEdit
         _title = State(initialValue: eventToEdit?.title ?? "")
         _targetDate = State(initialValue: eventToEdit?.targetDate ?? Date().addingTimeInterval(86400))
-        _selectedThemeHex = State(initialValue: eventToEdit?.themeColorHex ?? Theme.modernPastels[0])
-        _selectedIcon = State(initialValue: eventToEdit?.iconName ?? "star.fill")
         _notes = State(initialValue: eventToEdit?.notes ?? "")
-        _timerPreference = State(initialValue: eventToEdit?.timerPreference ?? 0)
-        _tempMediaFileNames = State(initialValue: eventToEdit?.mediaFileNames ?? [])
-    }
-    
-    var isFormValid: Bool {
-        !title.trimmingCharacters(in: .whitespaces).isEmpty
+        _selectedThemeHex = State(initialValue: eventToEdit?.themeColorHex ?? Theme.modernPastels[0])
     }
     
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
-                    // Header Card Preview
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("PREVIEW")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
-                            .padding(.leading)
+            ZStack {
+                // Antigravity Background
+                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 32) {
                         
-                        let tempEvent = DayEvent(title: title, targetDate: targetDate, themeColorHex: selectedThemeHex, iconName: selectedIcon)
-                        EventCardView(event: tempEvent)
-                            .padding(.horizontal)
-                    }
-                    .padding(.top)
-
-                    // 1. Details Section
-                    VStack(spacing: 12) {
-                        CustomTextField(placeholder: "Event Title", text: $title)
-                        
-                        DatePicker("Target Date", selection: $targetDate, displayedComponents: [.date, .hourAndMinute])
-                            .padding()
-                            .background(Color(uiColor: .secondarySystemBackground))
-                            .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-                    
-                    // 2. MEMORIES & SHARING (Moved up as requested)
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("MEMORIES & SHARING")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
-                        
-                        // Prominent Share Button
-                        // Note: For sharing, we use the temporary values to ensure the latest edits are shared
-                        let renderEvent = eventToEdit ?? DayEvent(title: title, targetDate: targetDate, themeColorHex: selectedThemeHex, iconName: selectedIcon)
-                        if let imageToShare = ShareHelper.renderEventCard(for: renderEvent, title: title, targetDate: targetDate, themeColorHex: selectedThemeHex, iconName: selectedIcon) {
-                            ShareLink(item: Image(uiImage: imageToShare), preview: SharePreview(title, image: Image(uiImage: imageToShare))) {
-                                HStack {
-                                    Spacer()
-                                    Label("SHARE TO SOCIAL", systemImage: "square.and.arrow.up")
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                    Spacer()
-                                }
-                                .frame(height: 56)
-                                .background(Color(hex: selectedThemeHex) ?? .blue)
-                                .cornerRadius(16)
-                                .shadow(color: (Color(hex: selectedThemeHex) ?? .blue).opacity(0.3), radius: 8, y: 4)
-                            }
+                        // 1. TOP: Floating Live Preview
+                        VStack {
+                            let previewEvent = DayEvent(title: title.isEmpty ? "Event Preview" : title, targetDate: targetDate)
+                            let _ = { previewEvent.themeColorHex = selectedThemeHex }()
+                            EventCardView(event: previewEvent)
+                                .scaleEffect(1.05)
+                                .padding(.top, 20)
+                                .animation(.spring(response: 0.5, dampingFraction: 0.7), value: title)
                         }
-
-                        // Camera & Gallery Buttons
-                        HStack(spacing: 12) {
+                        .padding(.horizontal)
+                        
+                        // 2. MIDDLE 1: Core Settings (Title & Date)
+                        VStack(spacing: 16) {
+                            TextField("What are we counting to?", text: $title)
+                                .font(.title3.bold())
+                                .padding()
+                                .background(Color.white)
+                                .continuousCorner(radius: 16)
+                                .antigravityShadow(radius: 8, y: 4)
+                            
+                            DatePicker("Target Date", selection: $targetDate)
+                                .font(.headline)
+                                .padding()
+                                .background(Color.white)
+                                .continuousCorner(radius: 16)
+                        }
+                        .padding(.horizontal)
+                        
+                        // 3. MIDDLE 2: Notes Editor
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("NOTES").font(.system(size: 10, weight: .black)).foregroundColor(.secondary).padding(.horizontal)
+                            TextEditor(text: $notes)
+                                .frame(height: 120)
+                                .padding(12)
+                                .background(Color.white)
+                                .continuousCorner(radius: 20)
+                                .antigravityShadow(radius: 5, y: 2)
+                                .overlay(
+                                    Text(notes.isEmpty ? "Add some personal context..." : "")
+                                        .foregroundColor(.secondary.opacity(0.5))
+                                        .padding(.leading, 18).padding(.top, 22),
+                                    alignment: .topLeading
+                                )
+                        }
+                        .padding(.horizontal)
+                        
+                        // 4. MIDDLE 3: Smart Calendar Sync (Premium)
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("INTEGRATION").font(.system(size: 10, weight: .black)).foregroundColor(.secondary).padding(.horizontal)
                             Button {
-                                showingCamera = true
+                                if storeKitManager.isPro { showingCalendarSync = true }
+                                else { showingPaywall = true }
                             } label: {
                                 HStack {
-                                    Image(systemName: "camera.fill")
-                                    Text("Camera")
+                                    Image(systemName: "calendar.badge.plus")
+                                    Text("Smart Calendar Sync")
+                                    Spacer()
+                                    if !storeKitManager.isPro { Image(systemName: "lock.fill").foregroundColor(.orange) }
+                                    Image(systemName: "chevron.right").font(.caption)
                                 }
-                                .frame(maxWidth: .infinity)
+                                .font(.headline)
                                 .padding()
-                                .background(Color.blue.opacity(0.1))
-                                .cornerRadius(12)
+                                .background(.ultraThinMaterial)
+                                .continuousCorner(radius: 16)
+                                .antigravityShadow(radius: 5)
                             }
+                            .padding(.horizontal)
+                        }
+                        
+                        // 5. BOTTOM: Milestones Section (Premium)
+                        VStack(alignment: .leading, spacing: 16) {
+                            HStack {
+                                Text("MILESTONES").font(.system(size: 10, weight: .black)).foregroundColor(.secondary)
+                                Spacer()
+                                if !storeKitManager.isPro { Image(systemName: "lock.fill").foregroundColor(.orange) }
+                            }
+                            .padding(.horizontal)
                             
-                            PhotosPicker(selection: $selectedPhotoItem, matching: .images) {
-                                HStack {
-                                    Image(systemName: "photo.on.rectangle")
-                                    Text("Gallery")
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.purple.opacity(0.1))
-                                .cornerRadius(12)
-                            }
-                        }
-                        
-                        if !loadedImages.isEmpty {
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(loadedImages.indices, id: \.self) { index in
-                                        Image(uiImage: loadedImages[index])
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 100, height: 100)
-                                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                                            .contextMenu {
-                                                Button(role: .destructive) {
-                                                    deleteImage(at: index)
-                                                } label: {
-                                                    Label("Delete", systemImage: "trash")
-                                                }
-                                            }
-                                    }
-                                }
-                            }
-                            .frame(height: 110)
-                        }
-                    }
-                    .padding(.horizontal)
-                    
-                    // 3. Notes
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("NOTES")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
-                        
-                        TextField("Write your thoughts here...", text: $notes, axis: .vertical)
-                            .lineLimit(3...5)
-                            .padding()
-                            .background(Color(uiColor: .secondarySystemBackground))
-                            .cornerRadius(12)
-                    }
-                    .padding(.horizontal)
-
-                    // 4. Appearance
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("APPEARANCE")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(Theme.modernPastels + Theme.darkAcademia, id: \.self) { hex in
-                                    Circle()
-                                        .fill(Color(hex: hex) ?? .blue)
-                                        .frame(width: 40, height: 40)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.primary, lineWidth: selectedThemeHex == hex ? 3 : 0)
-                                        )
-                                        .onTapGesture {
-                                            withAnimation {
-                                                selectedThemeHex = hex
-                                            }
+                            ZStack {
+                                VStack(spacing: 12) {
+                                    // New Task Input
+                                    HStack {
+                                        TextField("Add milestone...", text: $newTaskTitle)
+                                            .textFieldStyle(.plain)
+                                        Button { addMilestone() } label: {
+                                            Image(systemName: "plus.circle.fill").font(.title2).foregroundColor(.accentColor)
                                         }
-                                }
-                            }
-                        }
-                        
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 44))], spacing: 16) {
-                            ForEach(icons, id: \.self) { icon in
-                                Image(systemName: icon)
-                                    .font(.title2)
-                                    .foregroundColor(selectedIcon == icon ? .white : .primary)
-                                    .frame(width: 44, height: 44)
-                                    .background(
-                                        selectedIcon == icon ? (Color(hex: selectedThemeHex) ?? .blue) : Color.clear
-                                    )
-                                    .clipShape(Circle())
-                                    .onTapGesture {
-                                        withAnimation {
-                                            selectedIcon = icon
+                                        .disabled(newTaskTitle.isEmpty)
+                                    }
+                                    .padding().background(Color.white).continuousCorner(radius: 16).antigravityShadow(radius: 5)
+                                    
+                                    // Tasks List
+                                    if let event = eventToEdit {
+                                        let sortedTasks = (event.tasks ?? []).sorted { $0.createdAt < $1.createdAt }
+                                        ForEach(sortedTasks) { task in
+                                            MilestonePill(task: task)
                                         }
                                     }
+                                }
+                                
+                                if !storeKitManager.isPro {
+                                    Rectangle()
+                                        .fill(.ultraThinMaterial.opacity(0.8))
+                                        .continuousCorner(radius: 24)
+                                        .overlay(Button("Unlock Milestones with Pro") { showingPaywall = true }.font(.headline))
+                                }
                             }
+                            .padding(.horizontal)
                         }
-                    }
-                    .padding(.horizontal)
-                    
-                    // 5. Timer Style
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("TIMER STYLE")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundColor(.secondary)
                         
-                        Picker("Style", selection: $timerPreference) {
-                            Text("Auto").tag(0)
-                            Text("Days").tag(1)
-                            Text("Live").tag(2)
-                        }
-                        .pickerStyle(SegmentedPickerStyle())
+                        Spacer(minLength: 100)
                     }
-                    .padding(.horizontal)
-                    
-                    Spacer(minLength: 40)
                 }
             }
             .navigationTitle(eventToEdit == nil ? "New Event" : "Edit Event")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Save") { saveEvent() }
-                        .disabled(!isFormValid)
-                        .fontWeight(.bold)
+                ToolbarItem(placement: .navigationBarLeading) { Button("Cancel") { dismiss() } }
+                ToolbarItem(placement: .navigationBarTrailing) { 
+                    Button("Save") { saveEvent() }.fontWeight(.bold).disabled(title.isEmpty)
                 }
             }
-            .sheet(isPresented: $showingCamera) {
-                CameraPicker { image in
-                    if let fileName = MediaManager.shared.saveImage(image) {
-                        tempMediaFileNames.append(fileName)
-                        loadedImages.append(image)
-                    }
-                }
-            }
-            .onChange(of: selectedPhotoItem) { _, newItem in
-                Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self), let image = UIImage(data: data) {
-                        if let fileName = MediaManager.shared.saveImage(image) {
-                            tempMediaFileNames.append(fileName)
-                            loadedImages.append(image)
-                        }
-                    }
-                    selectedPhotoItem = nil
-                }
-            }
-            .onAppear {
-                loadInitialImages()
-            }
+            .sheet(isPresented: $showingPaywall) { PaywallView() }
+            .sheet(isPresented: $showingCalendarSync) { SmartImportSheet() }
         }
     }
     
-    private func loadInitialImages() {
-        loadedImages = tempMediaFileNames.compactMap { MediaManager.shared.loadImage(fileName: $0) }
-    }
-    
-    private func deleteImage(at index: Int) {
-        let fileName = tempMediaFileNames[index]
-        MediaManager.shared.deleteImage(fileName: fileName)
-        tempMediaFileNames.remove(at: index)
-        loadedImages.remove(at: index)
+    private func addMilestone() {
+        guard storeKitManager.isPro else { showingPaywall = true; return }
+        if let event = eventToEdit {
+            let task = EventTask(title: newTaskTitle)
+            task.event = event
+            modelContext.insert(task)
+            newTaskTitle = ""
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
     }
     
     private func saveEvent() {
         if let event = eventToEdit {
-            event.title = title
-            event.targetDate = targetDate
-            event.themeColorHex = selectedThemeHex
-            event.iconName = selectedIcon
-            event.notes = notes
-            event.timerPreference = timerPreference
-            event.mediaFileNames = tempMediaFileNames
+            event.title = title; event.targetDate = targetDate; event.notes = notes; event.themeColorHex = selectedThemeHex
         } else {
-            let newEvent = DayEvent(
-                title: title,
-                targetDate: targetDate,
-                themeColorHex: selectedThemeHex,
-                iconName: selectedIcon,
-                isPremium: true // Set to true since user is testing pro features
-            )
+            let newEvent = DayEvent(title: title, targetDate: targetDate, themeColorHex: selectedThemeHex)
             newEvent.notes = notes
-            newEvent.timerPreference = timerPreference
-            newEvent.mediaFileNames = tempMediaFileNames
             modelContext.insert(newEvent)
         }
-        
         try? modelContext.save()
         WidgetCenter.shared.reloadAllTimelines()
         dismiss()
     }
 }
 
-struct CustomTextField: View {
-    var placeholder: String
-    @Binding var text: String
-    
+struct MilestonePill: View {
+    @Bindable var task: EventTask
     var body: some View {
-        TextField(placeholder, text: $text)
-            .padding()
-            .background(Color(uiColor: .secondarySystemBackground))
-            .cornerRadius(12)
-            .font(.headline)
+        HStack {
+            Button {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { task.isCompleted.toggle() }
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            } label: {
+                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(task.isCompleted ? .green : .secondary)
+            }
+            Text(task.title)
+                .strikethrough(task.isCompleted)
+                .foregroundColor(task.isCompleted ? .secondary : .primary)
+            Spacer()
+        }
+        .padding()
+        .background(Color.white)
+        .continuousCorner(radius: 16)
+        .opacity(task.isCompleted ? 0.6 : 1.0)
+        .antigravityShadow(radius: task.isCompleted ? 2 : 5)
     }
 }
