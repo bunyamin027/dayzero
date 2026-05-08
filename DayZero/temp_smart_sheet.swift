@@ -1,0 +1,2 @@
+"import SwiftUI\nimport EventKit\nimport SwiftData\n\nstruct SmartImportSheet: View {\n    @Environment(\\.dismiss) private var dismiss\n    @Environment(\\.modelContext) private var modelContext\n    @StateObject private var manager = CalendarImportManage
+<truncated 14963 bytes>

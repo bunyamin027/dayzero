@@ -14,6 +14,7 @@ final class DayEvent {
     var notes: String = ""
     var fontStyle: String = "Classic"
     var timerPreference: Int = 0
+    var calendarEventIdentifier: String? = nil
 
     @Relationship(deleteRule: .cascade, inverse: \EventTask.event)
     var tasks: [EventTask]? = []

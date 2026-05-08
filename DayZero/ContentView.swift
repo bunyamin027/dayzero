@@ -9,6 +9,7 @@ struct ContentView: View {
     
     @State private var showingAddSheet = false
     @State private var showingPaywall = false
+    @State private var showingSmartImport = false
     @State private var selectedEvent: DayEvent? = nil
     
     private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
@@ -57,6 +58,14 @@ struct ContentView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
                         Button {
+                            showingSmartImport = true
+                        } label: {
+                            Image(systemName: "calendar.badge.plus")
+                                .font(.title3)
+                                .foregroundColor(.primary)
+                        }
+
+                        Button {
                             if events.count >= 3 && !storeKitManager.isPro {
                                 showingPaywall = true
                             } else {
@@ -80,6 +89,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
+            }
+            .sheet(isPresented: $showingSmartImport) {
+                SmartImportSheet()
             }
         }
         .onReceive(timer) { _ in

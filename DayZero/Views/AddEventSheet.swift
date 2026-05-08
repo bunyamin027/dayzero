@@ -1,3 +1,4 @@
+import EventKit
 import SwiftUI
 import SwiftData
 import WidgetKit
@@ -257,30 +258,49 @@ struct MilestonePill: View {
     var themeColor: Color = .blue
 
     var body: some View {
-        HStack {
+        HStack(spacing: 12) {
             Button {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { task.isCompleted.toggle() }
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { 
+                    task.isCompleted.toggle() 
+                }
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             } label: {
-                Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                    .foregroundColor(task.isCompleted ? Color(hex: "#10B981")! : .secondary)
+                ZStack {
+                    Circle()
+                        .strokeBorder(task.isCompleted ? Color(hex: "#10B981")! : Color.secondary.opacity(0.3), lineWidth: 1.5)
+                        .frame(width: 22, height: 22)
+                    
+                    if task.isCompleted {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(Color(hex: "#10B981")!)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
             }
+            .buttonStyle(.plain)
+
             Text(task.title)
+                .font(.system(size: 15, weight: .medium, design: .rounded))
+                .foregroundColor(task.isCompleted ? .secondary.opacity(0.7) : .primary)
                 .strikethrough(task.isCompleted)
-                .foregroundColor(task.isCompleted ? .secondary : .primary)
+                .lineLimit(2)
+            
             Spacer()
         }
-        .padding()
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(.ultraThinMaterial)
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
-                .strokeBorder(task.isCompleted ? Color(hex: "#10B981")!.opacity(0.3) : themeColor.opacity(0.4), lineWidth: 1.5)
+                .strokeBorder(task.isCompleted ? Color(hex: "#10B981")!.opacity(0.2) : themeColor.opacity(0.2), lineWidth: 1)
         )
+        .blur(radius: task.isCompleted ? 0.8 : 0)
         .opacity(task.isCompleted ? 0.6 : 1.0)
-        .shadow(color: themeColor.opacity(0.15), radius: 6, x: 0, y: 3)
+        .scaleEffect(task.isCompleted ? 0.98 : 1.0)
     }
 }
 
@@ -301,6 +321,7 @@ struct AddEventSheet: View {
     @State private var showingPaywall = false
     @State private var selectedFontStyle: String
     @State private var notesExpanded = false
+    @State private var tempTasks: [String] = []
     @FocusState private var notesFocused: Bool
     @FocusState private var taskInputFocused: Bool
 
@@ -357,6 +378,109 @@ struct AddEventSheet: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.top, 20)
+
+                        // ── MILESTONES (Inline Dynamic List) ───────────────────
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack {
+                                Text("MILESTONES")
+                                    .font(.system(size: 10, weight: .black))
+                                    .foregroundColor(.secondary)
+                                    .tracking(2)
+                                Spacer()
+                                if !storeKitManager.isPro {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "lock.fill")
+                                            .font(.system(size: 10))
+                                        Text("PRO")
+                                            .font(.system(size: 10, weight: .black))
+                                    }
+                                    .foregroundColor(Color(hex: "#F59E0B")!)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 5)
+                                    .background(Capsule().fill(Color(hex: "#FEF3C7")!))
+                                }
+                            }
+                            .padding(.horizontal, 20)
+                            
+                            // Task Input
+                            HStack {
+                                Image(systemName: "flag.fill")
+                                    .foregroundColor(Color(hex: selectedThemeHex) ?? Color(hex: "#818CF8")!)
+                                TextField("Add a milestone...", text: $newTaskTitle)
+                                    .focused($taskInputFocused)
+                                    .onSubmit { addMilestone() }
+                                Button { addMilestone() } label: {
+                                    Image(systemName: "arrow.up.circle.fill")
+                                        .font(.title2)
+                                        .foregroundColor(newTaskTitle.isEmpty ? .secondary : (Color(hex: selectedThemeHex) ?? Color(hex: "#818CF8")!))
+                                }
+                                .disabled(newTaskTitle.isEmpty)
+                            }
+                            .padding(14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(.ultraThinMaterial)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .strokeBorder(Color(hex: selectedThemeHex)!.opacity(0.4), lineWidth: 1.5)
+                            )
+                            .padding(.horizontal, 16)
+                            
+                            // Tasks List (Existing)
+                            if let event = eventToEdit {
+                                let tasks = (event.tasks ?? []).sorted { $0.createdAt < $1.createdAt }
+                                LazyVStack(spacing: 8) {
+                                    ForEach(tasks) { task in
+                                        MilestonePill(task: task, themeColor: Color(hex: selectedThemeHex) ?? .blue)
+                                            .padding(.horizontal, 16)
+                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                                Button(role: .destructive) {
+                                                    withAnimation(.spring()) {
+                                                        modelContext.delete(task)
+                                                        try? modelContext.save()
+                                                    }
+                                                } label: {
+                                                    Label("Delete", systemImage: "trash.fill")
+                                                }
+                                            }
+                                    }
+                                }
+                                .padding(.top, 4)
+                            } else {
+                                // Tasks List (Temp for new events)
+                                LazyVStack(spacing: 8) {
+                                    ForEach(tempTasks, id: \.self) { taskTitle in
+                                        HStack(spacing: 12) {
+                                            Image(systemName: "circle")
+                                                .foregroundColor(.secondary.opacity(0.4))
+                                                .frame(width: 22, height: 22)
+                                            
+                                            Text(taskTitle)
+                                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                                                .foregroundColor(.primary)
+                                            
+                                            Spacer()
+                                            
+                                            Button {
+                                                withAnimation(.spring()) {
+                                                    tempTasks.removeAll { $0 == taskTitle }
+                                                }
+                                            } label: {
+                                                Image(systemName: "xmark.circle.fill")
+                                                    .foregroundColor(.secondary.opacity(0.3))
+                                            }
+                                        }
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 12)
+                                        .background(RoundedRectangle(cornerRadius: 16).fill(.ultraThinMaterial))
+                                        .padding(.horizontal, 16)
+                                    }
+                                }
+                                .padding(.top, 4)
+                            }
+                        }
+                        .padding(.top, 16)
 
                         // ── ICON SCROLLER ────────────────────────────────
                         IconScroller(selectedIcon: $selectedIcon, themeColor: Color(hex: selectedThemeHex) ?? .blue)
@@ -440,78 +564,6 @@ struct AddEventSheet: View {
                         .padding(.horizontal, 20)
                         .padding(.top, 16)
 
-                        // ── MILESTONES (Inline Dynamic List) ───────────────────
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack {
-                                Text("MILESTONES")
-                                    .font(.system(size: 10, weight: .black))
-                                    .foregroundColor(.secondary)
-                                    .tracking(2)
-                                Spacer()
-                                if !storeKitManager.isPro {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "lock.fill")
-                                            .font(.system(size: 10))
-                                        Text("PRO")
-                                            .font(.system(size: 10, weight: .black))
-                                    }
-                                    .foregroundColor(Color(hex: "#F59E0B")!)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 5)
-                                    .background(Capsule().fill(Color(hex: "#FEF3C7")!))
-                                }
-                            }
-                            .padding(.horizontal, 20)
-                            
-                            // Task Input
-                            HStack {
-                                Image(systemName: "flag.fill")
-                                    .foregroundColor(Color(hex: "#818CF8")!)
-                                TextField("Add a milestone...", text: $newTaskTitle)
-                                    .focused($taskInputFocused)
-                                    .onSubmit { addMilestone() }
-                                Button { addMilestone() } label: {
-                                    Image(systemName: "arrow.up.circle.fill")
-                                        .font(.title2)
-                                        .foregroundColor(newTaskTitle.isEmpty ? .secondary : Color(hex: "#818CF8")!)
-                                }
-                                .disabled(newTaskTitle.isEmpty)
-                            }
-                            .padding(14)
-                            .background(
-                                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .fill(.ultraThinMaterial)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .strokeBorder(Color(hex: selectedThemeHex)!.opacity(0.4), lineWidth: 1.5)
-                            )
-                            .shadow(color: Color(hex: selectedThemeHex)!.opacity(0.15), radius: 12, x: 0, y: 6)
-                            .padding(.horizontal, 16)
-                            
-                            // Tasks List
-                            if let event = eventToEdit {
-                                let tasks = (event.tasks ?? []).sorted { $0.createdAt < $1.createdAt }
-                                LazyVStack(spacing: 8) {
-                                    ForEach(tasks) { task in
-                                        MilestonePill(task: task, themeColor: Color(hex: selectedThemeHex) ?? .blue)
-                                            .padding(.horizontal, 16)
-                                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                                Button(role: .destructive) {
-                                                    withAnimation(.spring()) {
-                                                        modelContext.delete(task)
-                                                        try? modelContext.save()
-                                                    }
-                                                } label: {
-                                                    Label("Delete", systemImage: "trash.fill")
-                                                }
-                                            }
-                                    }
-                                }
-                                .padding(.top, 4)
-                            }
-                        }
-                        .padding(.top, 20)
 
                         Spacer(minLength: 100)
                     }
@@ -554,14 +606,18 @@ struct AddEventSheet: View {
     }
 
     private func addMilestone() {
+        guard !newTaskTitle.isEmpty else { return }
         guard storeKitManager.isPro else { showingPaywall = true; return }
+        
         if let event = eventToEdit {
             let task = EventTask(title: newTaskTitle)
             task.event = event
             modelContext.insert(task)
-            newTaskTitle = ""
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        } else {
+            tempTasks.append(newTaskTitle)
         }
+        newTaskTitle = ""
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
     private func saveEvent() {
@@ -577,6 +633,13 @@ struct AddEventSheet: View {
             newEvent.notes = notes
             newEvent.fontStyle = selectedFontStyle
             modelContext.insert(newEvent)
+            
+            // Save temporary milestones
+            for taskTitle in tempTasks {
+                let task = EventTask(title: taskTitle)
+                task.event = newEvent
+                modelContext.insert(task)
+            }
         }
         try? modelContext.save()
         WidgetCenter.shared.reloadAllTimelines()
@@ -668,6 +731,368 @@ struct IconScroller: View {
                 }
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
+            }
+        }
+    }
+}
+
+
+// MARK: - Calendar Import Restored (Advanced)
+import EventKit
+import SwiftData
+import SwiftUI
+
+@MainActor
+class CalendarImportManager: ObservableObject {
+    static let shared = CalendarImportManager()
+    let eventStore = EKEventStore()
+    
+    @Published var availableCalendars: [EKCalendar] = []
+    @Published var selectedCalendarIDs: Set<String> = []
+    @Published var includeHolidays: Bool = false
+    @Published var filterKeyword: String = ""
+    
+    @Published var fetchedEvents: [EKEvent] = []
+    @Published var deselectedEventIDs: Set<String> = []
+    
+    var selectedEventsCount: Int {
+        fetchedEvents.filter { !deselectedEventIDs.contains($0.eventIdentifier) }.count
+    }
+    
+    func requestAccess() async {
+        do {
+            let granted: Bool
+            if #available(iOS 17.0, *) {
+                granted = try await eventStore.requestFullAccessToEvents()
+            } else {
+                granted = try await withCheckedThrowingContinuation { continuation in
+                    eventStore.requestAccess(to: .event) { granted, error in
+                        if let error = error {
+                            continuation.resume(throwing: error)
+                        } else {
+                            continuation.resume(returning: granted)
+                        }
+                    }
+                }
+            }
+            if granted {
+                await fetchCalendars()
+            }
+        } catch {
+            print("Calendar access denied: \(error.localizedDescription)")
+        }
+    }
+    
+    func fetchCalendars() async {
+        let calendars = eventStore.calendars(for: .event)
+        self.availableCalendars = calendars.sorted { $0.title < $1.title }
+        if selectedCalendarIDs.isEmpty {
+            selectedCalendarIDs = Set(calendars.map { $0.calendarIdentifier })
+        }
+    }
+    
+    func fetchSmartEvents(context: ModelContext) async {
+        let startDate = Date()
+        let endDate = Calendar.current.date(byAdding: .year, value: 1, to: startDate)!
+        
+        let calendars = eventStore.calendars(for: .event).filter { selectedCalendarIDs.contains($0.calendarIdentifier) }
+        guard !calendars.isEmpty else {
+            self.fetchedEvents = []
+            return
+        }
+        
+        let predicate = eventStore.predicateForEvents(withStart: startDate, end: endDate, calendars: calendars)
+        var events = eventStore.events(matching: predicate)
+        
+        // Filter holidays
+        if !includeHolidays {
+            events = events.filter { $0.calendar.type != .subscription && !$0.calendar.title.lowercased().contains("holiday") && !$0.calendar.title.lowercased().contains("tatil") }
+        }
+        
+        // Filter keyword
+        if !filterKeyword.isEmpty {
+            let keyword = filterKeyword.lowercased()
+            events = events.filter { $0.title.lowercased().contains(keyword) }
+        }
+        
+        // Deep Deduplication & Filter existing
+        var uniqueEvents: [EKEvent] = []
+        var seenSignatures = Set<String>()
+        
+        // Fetch existing DayEvents to prevent duplicates
+        let descriptor = FetchDescriptor<DayEvent>()
+        let existingEvents = (try? context.fetch(descriptor)) ?? []
+        
+        for event in events {
+            // Strip punctuation and spaces for deep deduplication
+            let normalizedTitle = event.title.lowercased()
+                .replacingOccurrences(of: "'", with: "")
+                .replacingOccurrences(of: "’", with: "")
+                .replacingOccurrences(of: " ", with: "")
+                .replacingOccurrences(of: "(publicholiday)", with: "")
+                .replacingOccurrences(of: "(resmitatil)", with: "")
+            
+            let dateStr = DateFormatter.localizedString(from: event.startDate, dateStyle: .short, timeStyle: .none)
+            let signature = "\(normalizedTitle)|\(dateStr)"
+            
+            if seenSignatures.contains(signature) {
+                continue
+            }
+            
+            // Check if already in DayZero
+            let isAlreadyImported = existingEvents.contains { dayEvent in
+                if let id = dayEvent.calendarEventIdentifier, id == event.eventIdentifier { return true }
+                
+                let dayEventNormalized = dayEvent.title.lowercased()
+                    .replacingOccurrences(of: "'", with: "")
+                    .replacingOccurrences(of: "’", with: "")
+                    .replacingOccurrences(of: " ", with: "")
+                
+                let dayEventDateStr = DateFormatter.localizedString(from: dayEvent.targetDate, dateStyle: .short, timeStyle: .none)
+                return dayEventNormalized == normalizedTitle && dayEventDateStr == dateStr
+            }
+            
+            if !isAlreadyImported {
+                seenSignatures.insert(signature)
+                uniqueEvents.append(event)
+            }
+        }
+        
+        self.fetchedEvents = uniqueEvents.sorted { $0.startDate < $1.startDate }
+        self.deselectedEventIDs.removeAll()
+    }
+}
+
+struct SmartImportSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @StateObject private var manager = CalendarImportManager.shared
+    
+    var body: some View {
+        ZStack {
+            // Tam Koyu Arka Plan
+            Color.black.ignoresSafeArea()
+            MeshGradientBackground().opacity(0.4)
+            
+            VStack(spacing: 24) {
+                // Header
+                HStack {
+                    Image(systemName: "wand.and.stars")
+                        .font(.title2)
+                        .foregroundColor(.white)
+                    Text("Smart Import")
+                        .font(.system(size: 24, weight: .black, design: .rounded))
+                        .foregroundColor(.white)
+                    Spacer()
+                    Button { dismiss() } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.white.opacity(0.4))
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.top, 20)
+                
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        
+                        // 1. Holidays Card
+                        ConfigCard(title: "PUBLIC HOLIDAYS", icon: "party.popper") {
+                            HStack {
+                                Text("Include Official Holidays")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                PremiumToggle(isOn: $manager.includeHolidays)
+                            }
+                        }
+                        
+                        // 2. Select Sources (Active Calendars)
+                        ConfigCard(title: "SELECT SOURCES", icon: "calendar") {
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(manager.availableCalendars, id: \.calendarIdentifier) { cal in
+                                        let isSelected = manager.selectedCalendarIDs.contains(cal.calendarIdentifier)
+                                        Button {
+                                            if isSelected { manager.selectedCalendarIDs.remove(cal.calendarIdentifier) }
+                                            else { manager.selectedCalendarIDs.insert(cal.calendarIdentifier) }
+                                            UISelectionFeedbackGenerator().selectionChanged()
+                                        } label: {
+                                            HStack(spacing: 8) {
+                                                Circle().fill(Color(cgColor: cal.cgColor)).frame(width: 10, height: 10)
+                                                Text(cal.title).font(.system(size: 14, weight: .bold))
+                                                if isSelected { Image(systemName: "checkmark").font(.system(size: 10, weight: .bold)) }
+                                            }
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 10)
+                                            .background(isSelected ? Color(hex: "#4F46E5")! : Color.white.opacity(0.05))
+                                            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(isSelected ? Color(hex: "#818CF8")! : Color.clear, lineWidth: 2))
+                                            .foregroundColor(.white)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // 3. Dynamic List
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("FOUND EVENTS (\(manager.selectedEventsCount) SELECTED)")
+                                .font(.system(size: 10, weight: .black))
+                                .foregroundColor(.white.opacity(0.5))
+                                .padding(.horizontal, 4)
+                            
+                            ForEach(manager.fetchedEvents, id: \.eventIdentifier) { event in
+                                let isSelected = !manager.deselectedEventIDs.contains(event.eventIdentifier)
+                                
+                                Button {
+                                    withAnimation(.spring()) {
+                                        if isSelected { manager.deselectedEventIDs.insert(event.eventIdentifier) }
+                                        else { manager.deselectedEventIDs.remove(event.eventIdentifier) }
+                                    }
+                                    UISelectionFeedbackGenerator().selectionChanged()
+                                } label: {
+                                    HStack(spacing: 16) {
+                                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                                            .font(.title2)
+                                            .foregroundColor(isSelected ? Color(hex: "#818CF8") : .white.opacity(0.2))
+                                        
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(event.title)
+                                                .font(.headline)
+                                                .foregroundColor(isSelected ? .white : .white.opacity(0.4))
+                                            
+                                            Text(event.startDate, style: .date)
+                                                .font(.caption.bold())
+                                                .foregroundColor(isSelected ? .white.opacity(0.6) : .white.opacity(0.3))
+                                        }
+                                        Spacer()
+                                    }
+                                    .padding()
+                                    .background(isSelected ? Color.white.opacity(0.05) : Color.black.opacity(0.3))
+                                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(isSelected ? Color.white.opacity(0.1) : Color.clear, lineWidth: 1))
+                                    .cornerRadius(16)
+                                    .blur(radius: isSelected ? 0 : 3)
+                                    .opacity(isSelected ? 1.0 : 0.4)
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.bottom, 120)
+                }
+            }
+            
+            // Bottom Import Button
+            VStack {
+                Spacer()
+                Button {
+                    importSelectedEvents()
+                } label: {
+                    HStack {
+                        Image(systemName: "wand.and.stars")
+                        Text("IMPORT \(manager.selectedEventsCount) EVENTS")
+                    }
+                    .font(.system(size: 16, weight: .black, design: .rounded))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 60)
+                    .background(
+                        LinearGradient(colors: [Color(hex: "#4F46E5")!, Color(hex: "#7C3AED")!], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
+                    .foregroundColor(.white)
+                    .cornerRadius(20)
+                    .shadow(color: Color(hex: "#7C3AED")!.opacity(0.3), radius: 10, y: 5)
+                }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 30)
+                .disabled(manager.selectedEventsCount == 0)
+                .opacity(manager.selectedEventsCount == 0 ? 0.5 : 1.0)
+            }
+        }
+        .preferredColorScheme(.dark)
+        .onAppear {
+            Task {
+                await manager.requestAccess()
+                await manager.fetchSmartEvents(context: modelContext)
+            }
+        }
+        .onChange(of: manager.selectedCalendarIDs) { _ in
+            Task { await manager.fetchSmartEvents(context: modelContext) }
+        }
+        .onChange(of: manager.includeHolidays) { _ in
+            Task { await manager.fetchSmartEvents(context: modelContext) }
+        }
+    }
+    
+    private func importSelectedEvents() {
+        let eventsToImport = manager.fetchedEvents.filter { !manager.deselectedEventIDs.contains($0.eventIdentifier) }
+        for ekEvent in eventsToImport {
+            let randomTheme = Theme.modernPastels.randomElement() ?? Theme.modernPastels[0]
+            
+            var finalNotes = ""
+            if let loc = ekEvent.location, !loc.isEmpty { finalNotes += "📍 Location: \(loc)\n" }
+            if let url = ekEvent.url { finalNotes += "🔗 Link: \(url.absoluteString)\n" }
+            if !finalNotes.isEmpty { finalNotes += "---\n" }
+            if let notes = ekEvent.notes, !notes.isEmpty { finalNotes += notes }
+            
+            let newEvent = DayEvent(
+                title: ekEvent.title,
+                targetDate: ekEvent.startDate,
+                themeColorHex: randomTheme,
+                iconName: "calendar",
+                isPremium: true
+            )
+            newEvent.notes = finalNotes
+            newEvent.calendarEventIdentifier = ekEvent.eventIdentifier
+            modelContext.insert(newEvent)
+        }
+        try? modelContext.save()
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        WidgetCenter.shared.reloadAllTimelines()
+        dismiss()
+    }
+}
+
+// MARK: - Components
+struct ConfigCard<Content: View>: View {
+    let title: String
+    let icon: String
+    let content: Content
+    
+    init(title: String, icon: String, @ViewBuilder content: () -> Content) {
+        self.title = title
+        self.icon = icon
+        self.content = content()
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: icon)
+                Text(title)
+            }
+            .font(.system(size: 10, weight: .black))
+            .foregroundColor(.white.opacity(0.4))
+            
+            content
+        }
+        .padding()
+        .background(RoundedRectangle(cornerRadius: 24).fill(Color.white.opacity(0.05)))
+        .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(Color.white.opacity(0.1), lineWidth: 1))
+    }
+}
+
+struct PremiumToggle: View {
+    @Binding var isOn: Bool
+    var body: some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) { isOn.toggle() }
+            UISelectionFeedbackGenerator().selectionChanged()
+        } label: {
+            ZStack(alignment: isOn ? .trailing : .leading) {
+                Capsule().fill(isOn ? Color(hex: "#818CF8")! : Color.white.opacity(0.1)).frame(width: 50, height: 28)
+                Circle().fill(.white).frame(width: 24, height: 24).padding(2).shadow(radius: 2)
             }
         }
     }
