@@ -70,11 +70,13 @@ struct ContentView: View {
                     }
                 }
             }
-            .sheet(isPresented: $showingAddSheet) {
+            .navigationDestination(isPresented: $showingAddSheet) {
                 AddEventSheet()
+                    .navigationBarBackButtonHidden(true)
             }
-            .sheet(item: $selectedEvent) { event in
+            .navigationDestination(item: $selectedEvent) { event in
                 AddEventSheet(eventToEdit: event)
+                    .navigationBarBackButtonHidden(true)
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()

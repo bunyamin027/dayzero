@@ -4,7 +4,6 @@ import WidgetKit
 
 // MARK: - Mesh Gradient Background
 struct MeshGradientBackground: View {
-    @State private var animate = false
     var body: some View {
         ZStack {
             Color(red: 0.96, green: 0.95, blue: 0.98).ignoresSafeArea()
@@ -12,24 +11,19 @@ struct MeshGradientBackground: View {
                 .fill(Color(hex: "#C084FC")!.opacity(0.18))
                 .frame(width: 340)
                 .blur(radius: 80)
-                .offset(x: animate ? -60 : 60, y: animate ? -120 : -80)
+                .offset(x: 60, y: -80)
             Circle()
                 .fill(Color(hex: "#818CF8")!.opacity(0.14))
                 .frame(width: 280)
                 .blur(radius: 70)
-                .offset(x: animate ? 80 : -40, y: animate ? 80 : 140)
+                .offset(x: -40, y: 140)
             Circle()
                 .fill(Color(hex: "#F0ABFC")!.opacity(0.12))
                 .frame(width: 200)
                 .blur(radius: 60)
-                .offset(x: animate ? 30 : -30, y: animate ? 260 : 300)
+                .offset(x: -30, y: 300)
         }
         .ignoresSafeArea()
-        .onAppear {
-            withAnimation(.easeInOut(duration: 6).repeatForever(autoreverses: true)) {
-                animate = true
-            }
-        }
     }
 }
 
@@ -295,6 +289,7 @@ struct AddEventSheet: View {
     @State private var targetDate: Date
     @State private var notes: String
     @State private var selectedThemeHex: String
+    @State private var selectedIcon: String
     @State private var newTaskTitle = ""
     @State private var showingPaywall = false
     @State private var selectedFontStyle: String
@@ -308,20 +303,20 @@ struct AddEventSheet: View {
         _targetDate = State(initialValue: eventToEdit?.targetDate ?? Date().addingTimeInterval(86400))
         _notes = State(initialValue: eventToEdit?.notes ?? "")
         _selectedThemeHex = State(initialValue: eventToEdit?.themeColorHex ?? Theme.modernPastels[0])
+        _selectedIcon = State(initialValue: eventToEdit?.iconName ?? "star.fill")
         _selectedFontStyle = State(initialValue: eventToEdit?.fontStyle ?? "Classic")
     }
 
     private let fonts = ["Classic", "Serif", "Rounded", "Retro", "Typewriter"]
 
     var previewEvent: DayEvent {
-        let e = DayEvent(title: title.isEmpty ? "Event Preview" : title, targetDate: targetDate, themeColorHex: selectedThemeHex)
+        let e = DayEvent(title: title.isEmpty ? "Event Preview" : title, targetDate: targetDate, themeColorHex: selectedThemeHex, iconName: selectedIcon)
         e.fontStyle = selectedFontStyle
         return e
     }
 
     var body: some View {
-        NavigationStack {
-            ZStack {
+        ZStack {
                 MeshGradientBackground()
 
                 ScrollView(showsIndicators: false) {
@@ -355,6 +350,9 @@ struct AddEventSheet: View {
                         }
                         .padding(.horizontal, 16)
                         .padding(.top, 20)
+
+                        // ── ICON SCROLLER ────────────────────────────────
+                        IconScroller(selectedIcon: $selectedIcon, themeColor: Color(hex: selectedThemeHex) ?? .blue)
 
                         // ── THEME COLOR SCROLLER ─────────────────────────
                         ThemeColorScroller(selectedThemeHex: $selectedThemeHex)
@@ -533,7 +531,6 @@ struct AddEventSheet: View {
                 }
             }
             .sheet(isPresented: $showingPaywall) { PaywallView() }
-        }
     }
 
     private func addMilestone() {
@@ -553,9 +550,10 @@ struct AddEventSheet: View {
             event.targetDate = targetDate
             event.notes = notes
             event.themeColorHex = selectedThemeHex
+            event.iconName = selectedIcon
             event.fontStyle = selectedFontStyle
         } else {
-            let newEvent = DayEvent(title: title, targetDate: targetDate, themeColorHex: selectedThemeHex)
+            let newEvent = DayEvent(title: title, targetDate: targetDate, themeColorHex: selectedThemeHex, iconName: selectedIcon)
             newEvent.notes = notes
             newEvent.fontStyle = selectedFontStyle
             modelContext.insert(newEvent)
@@ -593,6 +591,64 @@ struct ThemeColorScroller: View {
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
+        }
+    }
+}
+
+// MARK: - Icon Scroller
+struct IconScroller: View {
+    @Binding var selectedIcon: String
+    var themeColor: Color
+    
+    private let icons = [
+        "star.fill", "heart.fill", "gift.fill", "airplane", 
+        "music.mic", "graduationcap.fill", "gamecontroller.fill", 
+        "briefcase.fill", "book.closed.fill", "popcorn.fill", 
+        "cup.and.saucer.fill", "figure.run", "car.fill", 
+        "house.fill", "cart.fill", "party.popper.fill"
+    ]
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("ICON")
+                .font(.system(size: 10, weight: .black))
+                .foregroundColor(.secondary)
+                .tracking(2)
+                .padding(.horizontal, 20)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(icons, id: \.self) { icon in
+                        let isSelected = selectedIcon == icon
+                        
+                        Button {
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                selectedIcon = icon
+                            }
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        } label: {
+                            Image(systemName: icon)
+                                .font(.system(size: 20))
+                                .foregroundColor(isSelected ? .white : .primary)
+                                .frame(width: 44, height: 44)
+                                .background(
+                                    ZStack {
+                                        if isSelected {
+                                            Circle().fill(themeColor)
+                                        } else {
+                                            Circle().fill(.ultraThinMaterial)
+                                        }
+                                    }
+                                )
+                                .scaleEffect(isSelected ? 1.1 : 1.0)
+                                .shadow(color: isSelected ? themeColor.opacity(0.4) : .black.opacity(0.05), radius: 6, x: 0, y: 3)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 10)
+            }
         }
     }
 }

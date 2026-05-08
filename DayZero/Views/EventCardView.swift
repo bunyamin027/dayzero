@@ -4,6 +4,7 @@ struct EventCardView: View {
     @EnvironmentObject private var storeKitManager: StoreKitManager
     var event: DayEvent
     var isHero: Bool = false
+    @State private var rotation: Double = 0.0
 
     private func getFont(size: CGFloat, weight: Font.Weight = .regular) -> Font {
         switch event.fontStyle {
@@ -32,6 +33,7 @@ struct EventCardView: View {
                     Circle()
                         .fill(displayColor.opacity(0.15))
                         .frame(width: isHero ? 64 : 52, height: isHero ? 64 : 52)
+                        .shadow(color: displayColor.opacity(0.3), radius: 8, x: 0, y: 4)
                     Image(systemName: isCompleted ? "checkmark.circle.fill" : event.iconName)
                         .font(isHero ? .title : .title2)
                         .foregroundColor(displayColor)
@@ -79,22 +81,54 @@ struct EventCardView: View {
                 }
             }
             .padding(isHero ? 20 : 16)
-            .background(.ultraThinMaterial)
-            .continuousCorner(radius: isHero ? 32 : 24)
+            .background(
+                ZStack {
+                    RoundedRectangle(cornerRadius: isHero ? 32 : 24, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                    
+                    if isHero {
+                        RoundedRectangle(cornerRadius: 32, style: .continuous)
+                            .fill(
+                                LinearGradient(
+                                    colors: [displayColor.opacity(0.15), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    }
+                }
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: isHero ? 32 : 24, style: .continuous)
+                    .strokeBorder(.white.opacity(0.5), lineWidth: 1.5)
+            )
             .antigravityShadow(color: displayColor)
             .padding(.vertical, isHero ? 8 : 4)
             .overlay(
                 Group {
                     if isHero {
+                        // Base thicker neon stroke
                         RoundedRectangle(cornerRadius: 32, style: .continuous)
                             .strokeBorder(
-                                LinearGradient(
-                                    colors: [displayColor.opacity(0.6), .clear],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
+                                AngularGradient(
+                                    gradient: Gradient(stops: [
+                                        .init(color: displayColor, location: 0.0),
+                                        .init(color: displayColor.opacity(0.1), location: 0.15),
+                                        .init(color: .clear, location: 0.5),
+                                        .init(color: displayColor.opacity(0.1), location: 0.85),
+                                        .init(color: displayColor, location: 1.0)
+                                    ]),
+                                    center: .center,
+                                    angle: .degrees(rotation)
                                 ),
-                                lineWidth: 1.5
+                                lineWidth: 4
                             )
+                            .animation(.linear(duration: 4.0).repeatForever(autoreverses: false), value: rotation)
+                            // Outer glow effect
+                            .shadow(color: displayColor.opacity(0.8), radius: 8, x: 0, y: 0)
+                            .onAppear {
+                                rotation = 360.0
+                            }
                     }
                 }
             )
