@@ -4,6 +4,7 @@ import WidgetKit
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     @Query(sort: \DayEvent.targetDate) private var events: [DayEvent]
     @EnvironmentObject private var storeKitManager: StoreKitManager
     
@@ -99,6 +100,11 @@ struct ContentView: View {
         }
         .onAppear {
             deleteExpiredEvents()
+        }
+        .onChange(of: scenePhase) { newPhase in
+            if newPhase == .background {
+                AgenticNotificationManager.shared.scheduleMorningBriefings(events: events)
+            }
         }
     }
 
