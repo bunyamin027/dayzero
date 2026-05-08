@@ -252,9 +252,10 @@ struct MilestoneMiniRow: View {
     }
 }
 
-// MARK: - Full Milestone Pill
 struct MilestonePill: View {
     @Bindable var task: EventTask
+    var themeColor: Color = .blue
+
     var body: some View {
         HStack {
             Button {
@@ -270,10 +271,16 @@ struct MilestonePill: View {
             Spacer()
         }
         .padding()
-        .background(.ultraThinMaterial)
-        .continuousCorner(radius: 16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(task.isCompleted ? Color(hex: "#10B981")!.opacity(0.3) : themeColor.opacity(0.4), lineWidth: 1.5)
+        )
         .opacity(task.isCompleted ? 0.6 : 1.0)
-        .shadow(color: .black.opacity(0.06), radius: 6, x: 0, y: 3)
+        .shadow(color: themeColor.opacity(0.15), radius: 6, x: 0, y: 3)
     }
 }
 
@@ -416,12 +423,18 @@ struct AddEventSheet: View {
                             if notesExpanded || !notes.isEmpty {
                                 TextEditor(text: $notes)
                                     .focused($notesFocused)
-                                    .frame(minHeight: 80)
-                                    .padding(10)
+                                    .frame(minHeight: 100)
+                                    .padding(12)
                                     .scrollContentBackground(.hidden)
-                                    .background(.ultraThinMaterial)
-                                    .continuousCorner(radius: 20)
-                                    .shadow(color: .black.opacity(0.06), radius: 10, x: 0, y: 4)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                            .fill(.ultraThinMaterial)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                            .strokeBorder(Color(hex: selectedThemeHex)!.opacity(0.4), lineWidth: 1.5)
+                                    )
+                                    .shadow(color: Color(hex: selectedThemeHex)!.opacity(0.15), radius: 12, x: 0, y: 6)
                             }
                         }
                         .padding(.horizontal, 20)
@@ -465,8 +478,15 @@ struct AddEventSheet: View {
                                 .disabled(newTaskTitle.isEmpty)
                             }
                             .padding(14)
-                            .background(.ultraThinMaterial)
-                            .continuousCorner(radius: 18)
+                            .background(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .fill(.ultraThinMaterial)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .strokeBorder(Color(hex: selectedThemeHex)!.opacity(0.4), lineWidth: 1.5)
+                            )
+                            .shadow(color: Color(hex: selectedThemeHex)!.opacity(0.15), radius: 12, x: 0, y: 6)
                             .padding(.horizontal, 16)
                             
                             // Tasks List
@@ -474,7 +494,7 @@ struct AddEventSheet: View {
                                 let tasks = (event.tasks ?? []).sorted { $0.createdAt < $1.createdAt }
                                 LazyVStack(spacing: 8) {
                                     ForEach(tasks) { task in
-                                        MilestonePill(task: task)
+                                        MilestonePill(task: task, themeColor: Color(hex: selectedThemeHex) ?? .blue)
                                             .padding(.horizontal, 16)
                                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                                 Button(role: .destructive) {
