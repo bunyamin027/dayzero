@@ -26,8 +26,8 @@ struct PremiumPaywallView: View {
 
         var price: String {
             switch self {
-            case .monthly: return "$3.99"
-            case .annual:  return "$19.99"
+            case .monthly: return "$4.99"
+            case .annual:  return "$29.99"
             }
         }
 
@@ -216,11 +216,13 @@ struct PremiumPaywallView: View {
                     )
                 )
 
-            Text("Every precious moment,\nperfected.")
-                .font(.system(size: 14, weight: .regular, design: .rounded))
-                .foregroundColor(.white.opacity(0.55))
+            Text("Try full version free for 14 days.\nCancel anytime.")
+                .font(.system(size: 14, weight: .semibold, design: .rounded))
+                .foregroundColor(.white)
                 .multilineTextAlignment(.center)
-                .lineSpacing(3)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 8)
+                .background(Capsule().fill(Color.white.opacity(0.1)))
         }
         .padding(.top, 6)
     }
@@ -318,11 +320,12 @@ struct PremiumPaywallView: View {
                     ProgressView()
                         .progressViewStyle(CircularProgressViewStyle(tint: .white))
                 } else {
-                    HStack(spacing: 8) {
-                        Image(systemName: "lock.open.fill")
-                            .font(.system(size: 16, weight: .semibold))
-                        Text("Unlock DayZero Pro")
+                    VStack(spacing: 2) {
+                        Text("Start 14-Day Free Trial")
                             .font(.system(size: 17, weight: .bold, design: .rounded))
+                        Text("Then \(selectedPlan.price) / \(selectedPlan == .monthly ? "month" : "year")")
+                            .font(.system(size: 11, weight: .medium))
+                            .opacity(0.8)
                     }
                     .foregroundColor(.white)
                 }

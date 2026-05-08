@@ -607,7 +607,13 @@ struct AddEventSheet: View {
 
     private func addMilestone() {
         guard !newTaskTitle.isEmpty else { return }
-        guard storeKitManager.isPro else { showingPaywall = true; return }
+        
+        // Freemium check: Limit to 3 milestones per event
+        let currentCount = (eventToEdit?.tasks?.count ?? 0) + tempTasks.count
+        if !storeKitManager.isPro && currentCount >= 3 {
+            showingPaywall = true
+            return
+        }
         
         if let event = eventToEdit {
             let task = EventTask(title: newTaskTitle)
@@ -650,6 +656,9 @@ struct AddEventSheet: View {
 
 struct ThemeColorScroller: View {
     @Binding var selectedThemeHex: String
+    @EnvironmentObject private var storeKitManager: StoreKitManager
+    @State private var showingPaywall = false
+    
     private let themes = Theme.modernPastels + Theme.darkAcademia
 
     var body: some View {
@@ -658,23 +667,40 @@ struct ThemeColorScroller: View {
                 ForEach(themes, id: \.self) { hex in
                     let color = Color(hex: hex) ?? .blue
                     let isSelected = selectedThemeHex == hex
+                    let isPremium = Theme.darkAcademia.contains(hex)
                     
-                    Circle()
-                        .fill(color)
-                        .frame(width: isSelected ? 38 : 30, height: isSelected ? 38 : 30)
-                        .overlay(Circle().strokeBorder(.white, lineWidth: isSelected ? 3 : 0))
-                        .shadow(color: color.opacity(0.5), radius: 6, x: 0, y: 3)
-                        .onTapGesture {
+                    ZStack(alignment: .topTrailing) {
+                        Circle()
+                            .fill(color)
+                            .frame(width: isSelected ? 38 : 30, height: isSelected ? 38 : 30)
+                            .overlay(Circle().strokeBorder(.white, lineWidth: isSelected ? 3 : 0))
+                            .shadow(color: color.opacity(0.5), radius: 6, x: 0, y: 3)
+                        
+                        if isPremium && !storeKitManager.isPro {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 8))
+                                .foregroundColor(.white)
+                                .padding(4)
+                                .background(Circle().fill(Color.orange))
+                                .offset(x: 4, y: -4)
+                        }
+                    }
+                    .onTapGesture {
+                        if isPremium && !storeKitManager.isPro {
+                            showingPaywall = true
+                        } else {
                             withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                                 selectedThemeHex = hex
                             }
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         }
+                    }
                 }
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 14)
         }
+        .sheet(isPresented: $showingPaywall) { PaywallView() }
     }
 }
 

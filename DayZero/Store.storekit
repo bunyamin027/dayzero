@@ -3,58 +3,125 @@
   "nonRenewingSubscriptions" : [
   ],
   "products" : [
-    {
-      "displayPrice" : "3.99",
-      "familyShareable" : true,
-      "internalID" : "12345678",
-      "localizations" : [
-        {
-          "description" : "Unlock unlimited countdowns, premium themes, milestones, and Live Activities — billed monthly.",
-          "displayName" : "DayZero Pro Monthly",
-          "locale" : "en_US"
-        }
-      ],
-      "productID" : "com.dayzero.pro.monthly",
-      "referenceName" : "Pro Monthly",
-      "type" : "NonConsumable"
-    },
-    {
-      "displayPrice" : "19.99",
-      "familyShareable" : true,
-      "internalID" : "87654321",
-      "localizations" : [
-        {
-          "description" : "Unlock unlimited countdowns, premium themes, milestones, and Live Activities — billed annually. Save 50%.",
-          "displayName" : "DayZero Pro Annual",
-          "locale" : "en_US"
-        }
-      ],
-      "productID" : "com.dayzero.pro.annual",
-      "referenceName" : "Pro Annual",
-      "type" : "NonConsumable"
-    },
-    {
-      "displayPrice" : "4.99",
-      "familyShareable" : true,
-      "internalID" : "12345679",
-      "localizations" : [
-        {
-          "description" : "Unlock unlimited events and premium themes.",
-          "displayName" : "DayZero Pro",
-          "locale" : "en_US"
-        }
-      ],
-      "productID" : "com.dayzero.pro",
-      "referenceName" : "Pro",
-      "type" : "NonConsumable"
-    }
   ],
   "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Load Products"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Purchase"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Verification"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Store Sync"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Subscription Status"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "App Transaction"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Manage Subscriptions Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Refund Request Sheet"
+      },
+      {
+        "current" : null,
+        "enabled" : false,
+        "name" : "Offer Code Redeem Sheet"
+      }
+    ]
   },
   "subscriptionGroups" : [
+    {
+      "id" : "7B2D1E4A",
+      "localizations" : [
+      ],
+      "name" : "Pro Subscriptions",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+          ],
+          "codeOffers" : [
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "12345678",
+          "introductoryOffer" : {
+            "internalID" : "INTRO_MONTHLY",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "14-day free trial, then $4.99/mo.",
+              "displayName" : "Monthly Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.dayzero.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Pro Monthly",
+          "subscriptionGroupID" : "7B2D1E4A",
+          "type" : " RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+          ],
+          "codeOffers" : [
+          ],
+          "displayPrice" : "29.99",
+          "familyShareable" : true,
+          "groupNumber" : 1,
+          "internalID" : "87654321",
+          "introductoryOffer" : {
+            "internalID" : "INTRO_ANNUAL",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P2W"
+          },
+          "localizations" : [
+            {
+              "description" : "14-day free trial, then $29.99/yr. Best value.",
+              "displayName" : "Annual Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.dayzero.pro.annual",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Pro Annual",
+          "subscriptionGroupID" : "7B2D1E4A",
+          "type" : " RecurringSubscription"
+        }
+      ]
+    }
   ],
   "version" : {
-    "major" : 2,
+    "major" : 3,
     "minor" : 0
   }
 }

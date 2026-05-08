@@ -16,6 +16,7 @@
 		4597F257394D7102CDE9D62D /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C370B470754A42AC4CD304 /* Theme.swift */; };
 		51506BA089F696C1BB2B3D55 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9C370B470754A42AC4CD304 /* Theme.swift */; };
 		5F4F6A2602C97105D56F02B7 /* DayZeroAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 51E9E84D5F366EBEB4AE1831 /* DayZeroAttributes.swift */; };
+		6818C9C2BD31C563E4DF57DF /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8E0BF7D0692FC482B395B5AE /* Assets.xcassets */; };
 		84E9CD2F6ED77907C8C07717 /* DayZeroWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = ED9EC3436E3351B57BAEC254 /* DayZeroWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8570406A8FB3FB36D53B1280 /* DayZero.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */; };
 		85BEE5DA3B7D7DEE6CD21E47 /* ShareHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D4AF17F0191AAEA080D9FD2 /* ShareHelper.swift */; };
@@ -73,6 +74,7 @@
 		5BB8D5E8C7B988D5BE1F7312 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5C37FC7DE44DBB6A88455E50 /* DayZero.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DayZero.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		829F518630EFCD6CCF45E7D5 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
+		8E0BF7D0692FC482B395B5AE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		8FEBA55A737F8E7C2E37B438 /* MediaManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaManager.swift; sourceTree = "<group>"; };
 		A563AA9616B77E0CD48B632C /* DayEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayEvent.swift; sourceTree = "<group>"; };
 		B723C8DDB91197EF9D133D7B /* DayZero.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = DayZero.entitlements; sourceTree = "<group>"; };
@@ -113,7 +115,7 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		417913372FAEA0540094486E /* Products */ = {
+		4179133D2FAEA4E10094486E /* Products */ = {
 			isa = PBXGroup;
 			name = Products;
 			sourceTree = "<group>";
@@ -129,6 +131,7 @@
 		5E7B224F6F408F9E13873C8E /* DayZero */ = {
 			isa = PBXGroup;
 			children = (
+				8E0BF7D0692FC482B395B5AE /* Assets.xcassets */,
 				32682768DCBD6AC8C5BF9C65 /* ContentView.swift */,
 				B723C8DDB91197EF9D133D7B /* DayZero.entitlements */,
 				BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */,
@@ -258,7 +261,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 417913372FAEA0540094486E /* Products */;
+					ProductGroup = 4179133D2FAEA4E10094486E /* Products */;
 					ProjectRef = BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */;
 				},
 			);
@@ -275,6 +278,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6818C9C2BD31C563E4DF57DF /* Assets.xcassets in Resources */,
 				8570406A8FB3FB36D53B1280 /* DayZero.xcodeproj in Resources */,
 				10D8429B74C426C2CF9F8260 /* Store.storekit in Resources */,
 			);

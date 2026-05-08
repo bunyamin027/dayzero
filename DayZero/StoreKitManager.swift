@@ -6,13 +6,14 @@ class StoreKitManager: ObservableObject {
     static let shared = StoreKitManager()
     
     #if DEBUG
-    @Published var isPro: Bool = true   // ← DEBUG: Pro açık, yayın öncesi false yap
+    @Published var isPro: Bool = false
     #else
     @Published var isPro: Bool = false
     #endif
     @Published var products: [Product] = []
     
-    private let proProductID = "com.dayzero.pro"
+    private let proMonthlyID = "com.dayzero.pro.monthly"
+    private let proAnnualID = "com.dayzero.pro.annual"
     private var updatesTask: Task<Void, Never>? = nil
     
     init() {
@@ -25,8 +26,8 @@ class StoreKitManager: ObservableObject {
     
     func fetchProducts() async {
         do {
-            let storeProducts = try await Product.products(for: [proProductID])
-            self.products = storeProducts
+            let storeProducts = try await Product.products(for: [proMonthlyID, proAnnualID])
+            self.products = storeProducts.sorted(by: { $0.price < $1.price })
         } catch {
             print("Failed to fetch products: \(error)")
         }
@@ -52,7 +53,7 @@ class StoreKitManager: ObservableObject {
         for await result in Transaction.currentEntitlements {
             do {
                 let transaction = try checkVerified(result)
-                if transaction.productID == proProductID {
+                if transaction.productID == proMonthlyID || transaction.productID == proAnnualID {
                     hasPro = true
                 }
             } catch {
