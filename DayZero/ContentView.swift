@@ -10,12 +10,14 @@ struct ContentView: View {
     @State private var showingAddSheet = false
     @State private var showingPaywall = false
     @State private var selectedEvent: DayEvent? = nil
+    
+    private let timer = Timer.publish(every: 60, on: .main, in: .common).autoconnect()
 
     var body: some View {
         NavigationStack {
             ZStack {
                 // Background
-                Color(uiColor: .systemGroupedBackground).ignoresSafeArea()
+                MeshGradientBackground()
                 
                 if events.isEmpty {
                     emptyState
@@ -23,7 +25,8 @@ struct ContentView: View {
                     ScrollView {
                         LazyVStack(spacing: 16) {
                             ForEach(events) { event in
-                                EventCardView(event: event)
+                                let isToday = Calendar.current.isDateInToday(event.targetDate)
+                                EventCardView(event: event, isHero: isToday)
                                     .onTapGesture {
                                         selectedEvent = event
                                     }
@@ -76,6 +79,27 @@ struct ContentView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
+        }
+        .onReceive(timer) { _ in
+            deleteExpiredEvents()
+        }
+        .onAppear {
+            deleteExpiredEvents()
+        }
+    }
+
+    private func deleteExpiredEvents() {
+        let now = Date()
+        var didDelete = false
+        for event in events {
+            if event.targetDate <= now {
+                modelContext.delete(event)
+                didDelete = true
+            }
+        }
+        if didDelete {
+            try? modelContext.save()
+            WidgetCenter.shared.reloadAllTimelines()
         }
     }
 

@@ -32,7 +32,6 @@
 		E45A69E8EB3E7F6C10D09EAE /* EventCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC340D9802CC0FFFBEAF297D /* EventCardView.swift */; };
 		E5BFFDBB109FECA0EF8DB302 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0070921CC15EBD7FFDCE68B /* CameraPicker.swift */; };
 		FAE4FDB60D211977E6639846 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A51C14C3F3F9DB1581A6EE /* LiveActivityManager.swift */; };
-		FE53779CC2413D8318C183DF /* build_output.txt in Resources */ = {isa = PBXBuildFile; fileRef = 76B37A3118C5F13D1F7BB93D /* build_output.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,7 +70,6 @@
 		51E9E84D5F366EBEB4AE1831 /* DayZeroAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayZeroAttributes.swift; sourceTree = "<group>"; };
 		5BB8D5E8C7B988D5BE1F7312 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		5C37FC7DE44DBB6A88455E50 /* DayZero.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = DayZero.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		76B37A3118C5F13D1F7BB93D /* build_output.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = build_output.txt; sourceTree = "<group>"; };
 		829F518630EFCD6CCF45E7D5 /* EventDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventDetailView.swift; sourceTree = "<group>"; };
 		8FEBA55A737F8E7C2E37B438 /* MediaManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaManager.swift; sourceTree = "<group>"; };
 		A563AA9616B77E0CD48B632C /* DayEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayEvent.swift; sourceTree = "<group>"; };
@@ -128,7 +126,6 @@
 		5E7B224F6F408F9E13873C8E /* DayZero */ = {
 			isa = PBXGroup;
 			children = (
-				76B37A3118C5F13D1F7BB93D /* build_output.txt */,
 				32682768DCBD6AC8C5BF9C65 /* ContentView.swift */,
 				B723C8DDB91197EF9D133D7B /* DayZero.entitlements */,
 				BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */,
@@ -277,7 +274,6 @@
 			files = (
 				8570406A8FB3FB36D53B1280 /* DayZero.xcodeproj in Resources */,
 				10D8429B74C426C2CF9F8260 /* Store.storekit in Resources */,
-				FE53779CC2413D8318C183DF /* build_output.txt in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

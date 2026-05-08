@@ -3,6 +3,7 @@ import SwiftUI
 struct EventCardView: View {
     @EnvironmentObject private var storeKitManager: StoreKitManager
     var event: DayEvent
+    var isHero: Bool = false
 
     private func getFont(size: CGFloat, weight: Font.Weight = .regular) -> Font {
         switch event.fontStyle {
@@ -26,24 +27,24 @@ struct EventCardView: View {
             let hours   = (totalSeconds % 86400) / 3600
             let minutes = (totalSeconds % 3600) / 60
 
-            HStack(spacing: 16) {
+            HStack(spacing: isHero ? 20 : 16) {
                 ZStack {
                     Circle()
                         .fill(displayColor.opacity(0.15))
-                        .frame(width: 52, height: 52)
+                        .frame(width: isHero ? 64 : 52, height: isHero ? 64 : 52)
                     Image(systemName: isCompleted ? "checkmark.circle.fill" : event.iconName)
-                        .font(.title2)
+                        .font(isHero ? .title : .title2)
                         .foregroundColor(displayColor)
                 }
 
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: isHero ? 6 : 4) {
                     Text(event.title)
-                        .font(getFont(size: 17, weight: .bold))
+                        .font(getFont(size: isHero ? 20 : 17, weight: .bold))
                         .foregroundColor(.primary)
                         .lineLimit(1)
                     Text(event.targetDate, format: .dateTime.day().month().year().hour().minute())
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                        .font(isHero ? .subheadline.weight(.medium) : .subheadline)
+                        .foregroundColor(isHero ? displayColor.opacity(0.8) : .secondary)
                 }
 
                 Spacer()
@@ -52,30 +53,51 @@ struct EventCardView: View {
                     if days > 0 {
                         HStack(alignment: .lastTextBaseline, spacing: 2) {
                             Text("\(days)")
-                                .font(getFont(size: 30, weight: .black))
+                                .font(getFont(size: isHero ? 36 : 30, weight: .black))
                                 .foregroundColor(displayColor)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.4)
                             Text("d")
-                                .font(.system(size: 11, weight: .bold))
+                                .font(.system(size: isHero ? 14 : 11, weight: .bold))
                                 .foregroundColor(displayColor.opacity(0.7))
                         }
                         Text(String(format: "%02d:%02d", hours, minutes))
-                            .font(getFont(size: 13, weight: .semibold))
+                            .font(getFont(size: isHero ? 15 : 13, weight: .semibold))
                             .foregroundColor(.secondary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.5)
                     } else {
                         Text(String(format: "%02d:%02d", hours, minutes))
-                            .font(getFont(size: 28, weight: .black))
+                            .font(getFont(size: isHero ? 34 : 28, weight: .black))
                             .foregroundColor(displayColor)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.4)
                     }
                     Text(isCompleted ? "AGO" : "LEFT")
-                        .font(.system(size: 9, weight: .black))
+                        .font(.system(size: isHero ? 11 : 9, weight: .black))
                         .foregroundColor(.secondary)
                 }
             }
-            .padding()
+            .padding(isHero ? 20 : 16)
             .background(.ultraThinMaterial)
-            .continuousCorner(radius: 24)
+            .continuousCorner(radius: isHero ? 32 : 24)
             .antigravityShadow(color: displayColor)
-            .padding(.vertical, 4)
+            .padding(.vertical, isHero ? 8 : 4)
+            .overlay(
+                Group {
+                    if isHero {
+                        RoundedRectangle(cornerRadius: 32, style: .continuous)
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [displayColor.opacity(0.6), .clear],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    }
+                }
+            )
         }
     }
 }
