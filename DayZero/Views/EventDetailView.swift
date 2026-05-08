@@ -30,21 +30,7 @@ struct EventDetailView: View {
                         ConfigSummaryRow(icon: "tag.fill", title: "Title", value: event.title)
                         ConfigSummaryRow(icon: "calendar", title: "Target Date", value: event.targetDate.formatted(date: .long, time: .omitted))
                         
-                        // Calendar Import Entry Point
-                        Button {
-                            // SmartImportSheet'i tetikleyen mantık
-                        } label: {
-                            HStack {
-                                Image(systemName: "calendar.badge.plus")
-                                Text("Sync with Apple Calendar")
-                                Spacer()
-                                Image(systemName: "chevron.right").font(.caption).foregroundColor(.secondary)
-                            }
-                            .padding()
-                            .background(Color.white)
-                            .continuousCorner(radius: 16)
-                            .antigravityShadow(radius: 5, y: 2)
-                        }
+
                     }
                     .padding(.horizontal)
                     

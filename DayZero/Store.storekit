@@ -4,9 +4,39 @@
   ],
   "products" : [
     {
-      "displayPrice" : "4.99",
+      "displayPrice" : "3.99",
       "familyShareable" : true,
       "internalID" : "12345678",
+      "localizations" : [
+        {
+          "description" : "Unlock unlimited countdowns, premium themes, milestones, and Live Activities — billed monthly.",
+          "displayName" : "DayZero Pro Monthly",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.dayzero.pro.monthly",
+      "referenceName" : "Pro Monthly",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : true,
+      "internalID" : "87654321",
+      "localizations" : [
+        {
+          "description" : "Unlock unlimited countdowns, premium themes, milestones, and Live Activities — billed annually. Save 50%.",
+          "displayName" : "DayZero Pro Annual",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.dayzero.pro.annual",
+      "referenceName" : "Pro Annual",
+      "type" : "NonConsumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : true,
+      "internalID" : "12345679",
       "localizations" : [
         {
           "description" : "Unlock unlimited events and premium themes.",

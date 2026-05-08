@@ -1,144 +1,543 @@
 import SwiftUI
 import StoreKit
 
-struct PaywallView: View {
+// MARK: - PaywallView (entry point, aliased for ContentView compatibility)
+typealias PaywallView = PremiumPaywallView
+
+// MARK: - Premium Paywall View
+struct PremiumPaywallView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var storeKitManager: StoreKitManager
-    
+
+    // Pricing plan selection
+    @State private var selectedPlan: PricingPlan = .annual
+
+    // Animation states
+    @State private var backgroundPhase: CGFloat = 0
+    @State private var glowPulse: CGFloat = 1.0
+    @State private var shimmerOffset: CGFloat = -300
+    @State private var featuresVisible: Bool = false
+    @State private var isPurchasing: Bool = false
+    @State private var isRestoring: Bool = false
+
+    enum PricingPlan: String, CaseIterable {
+        case monthly = "Monthly"
+        case annual  = "Annual"
+
+        var price: String {
+            switch self {
+            case .monthly: return "$3.99"
+            case .annual:  return "$19.99"
+            }
+        }
+
+        var subLabel: String {
+            switch self {
+            case .monthly: return "per month"
+            case .annual:  return "per year · Save 50%"
+            }
+        }
+
+        var badge: String? {
+            switch self {
+            case .annual:  return "BEST VALUE"
+            case .monthly: return nil
+            }
+        }
+    }
+
+    // MARK: - Feature Data
+    private let features: [(icon: String, emoji: String, title: String, subtitle: String)] = [
+        ("infinity",            "♾️", "Unlimited Countdowns",       "Break the 3-event limit forever"),
+        ("textformat.size",     "✨", "Premium Typography & Themes", "Unlock all aesthetic fonts & styles"),
+        ("checkmark.seal.fill", "✅", "Milestone Checklists",        "Sub-tasks & progress for every event"),
+        ("timer",               "⏱️", "Live Activities",             "Real-time ticking · Lock Screen & Dynamic Island"),
+    ]
+
+    // MARK: - Body
     var body: some View {
         ZStack {
-            // Premium dark background
-            Color(hex: "#1A1A24")?.ignoresSafeArea()
-            
-            // Abstract subtle gradient
-            RadialGradient(
-                colors: [Color.blue.opacity(0.3), Color.clear],
-                center: .topLeading,
-                startRadius: 100,
-                endRadius: 500
-            ).ignoresSafeArea()
-            
-            VStack(spacing: 24) {
-                Spacer()
-                
-                // Icon
+            // ── Animated Mesh Background ──────────────────────────────
+            meshBackground
+
+            // ── Content ───────────────────────────────────────────────
+            VStack(spacing: 0) {
+                // Close button row
+                HStack {
+                    Spacer()
+                    Button { dismiss() } label: {
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "xmark")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 18)
+
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 20) {
+                        // ── Hero ─────────────────────────────────────
+                        heroSection
+
+                        // ── Feature Rows ─────────────────────────────
+                        featureRows
+
+                        // ── Pricing Cards ────────────────────────────
+                        pricingCards
+
+                        // ── CTA Button ───────────────────────────────
+                        ctaButton
+
+                        // ── Footer Links ─────────────────────────────
+                        footerLinks
+                            .padding(.bottom, 28)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 4)
+                }
+            }
+        }
+        .ignoresSafeArea()
+        .onAppear {
+            startBackgroundAnimation()
+            startGlowPulse()
+            startShimmer()
+            withAnimation(.easeOut(duration: 0.6).delay(0.2)) {
+                featuresVisible = true
+            }
+            Task { await storeKitManager.fetchProducts() }
+        }
+    }
+
+    // MARK: - Mesh Background
+    private var meshBackground: some View {
+        ZStack {
+            Color(red: 0.06, green: 0.04, blue: 0.12)
+                .ignoresSafeArea()
+
+            // Blob 1 – deep violet
+            ellipsoid(
+                color: Color(red: 0.42, green: 0.16, blue: 0.86),
+                width: 380, height: 380,
+                offset: CGSize(
+                    width: -100 + sin(backgroundPhase * 0.7) * 30,
+                    height: -240 + cos(backgroundPhase * 0.5) * 40
+                ),
+                blur: 90
+            )
+            // Blob 2 – neon indigo
+            ellipsoid(
+                color: Color(red: 0.22, green: 0.10, blue: 0.70),
+                width: 320, height: 280,
+                offset: CGSize(
+                    width: 140 + cos(backgroundPhase * 0.6) * 25,
+                    height: 100 + sin(backgroundPhase * 0.8) * 35
+                ),
+                blur: 100
+            )
+            // Blob 3 – electric teal
+            ellipsoid(
+                color: Color(red: 0.04, green: 0.65, blue: 0.82),
+                width: 260, height: 220,
+                offset: CGSize(
+                    width: 80 + sin(backgroundPhase * 0.9) * 20,
+                    height: 300 + cos(backgroundPhase * 0.55) * 30
+                ),
+                blur: 110
+            )
+            // Blob 4 – magenta accent
+            ellipsoid(
+                color: Color(red: 0.85, green: 0.15, blue: 0.55),
+                width: 200, height: 200,
+                offset: CGSize(
+                    width: -140 + cos(backgroundPhase) * 15,
+                    height: 220 + sin(backgroundPhase * 0.75) * 20
+                ),
+                blur: 80
+            )
+        }
+    }
+
+    private func ellipsoid(color: Color, width: CGFloat, height: CGFloat, offset: CGSize, blur: CGFloat) -> some View {
+        Ellipse()
+            .fill(color.opacity(0.55))
+            .frame(width: width, height: height)
+            .offset(offset)
+            .blur(radius: blur)
+    }
+
+    // MARK: - Hero Section
+    private var heroSection: some View {
+        VStack(spacing: 10) {
+            // Crown badge
+            ZStack {
+                Circle()
+                    .fill(.ultraThinMaterial)
+                    .frame(width: 76, height: 76)
+                    .overlay(
+                        Circle()
+                            .strokeBorder(
+                                LinearGradient(
+                                    colors: [
+                                        Color(red: 1.0, green: 0.82, blue: 0.20),
+                                        Color(red: 1.0, green: 0.50, blue: 0.10)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    )
+                    .shadow(color: Color(red: 0.42, green: 0.16, blue: 0.86).opacity(0.6 * glowPulse), radius: 18 * glowPulse)
+
                 Image(systemName: "crown.fill")
-                    .font(.system(size: 80))
+                    .font(.system(size: 34))
                     .foregroundStyle(
                         LinearGradient(
-                            colors: [Color(hex: "#FFD700")!, Color(hex: "#FFA500")!],
+                            colors: [Color(red: 1.0, green: 0.85, blue: 0.25), Color(red: 1.0, green: 0.50, blue: 0.10)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .shadow(color: Color(hex: "#FFD700")!.opacity(0.5), radius: 20, x: 0, y: 10)
-                    .padding(.bottom, 10)
-                
-                Text("DayZero Pro")
-                    .font(.system(size: 36, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
-                
-                Text("Unlock the full potential of DayZero. Aesthetic control, smart automation, and unlimited moments.")
-                    .font(.body)
-                    .foregroundColor(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 40)
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    FeatureRow(icon: "wand.and.stars", text: "Smart Calendar Import")
-                    FeatureRow(icon: "infinity", text: "Unlimited Active Events")
-                    FeatureRow(icon: "timer", text: "Live Activity (Second-by-Second)")
-                    FeatureRow(icon: "paintpalette.fill", text: "Premium Neon Themes & Fonts")
-                    FeatureRow(icon: "icloud.fill", text: "iCloud Sync Across Devices")
-                }
-                .padding(.vertical, 20)
-                
-                Spacer()
-                
-                if let product = storeKitManager.products.first {
-                    Button {
-                        Task {
-                            try? await storeKitManager.purchase(product)
-                            if storeKitManager.isPro {
-                                dismiss()
-                            }
-                        }
-                    } label: {
-                        HStack {
-                            Text("Upgrade for \(product.displayPrice)")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                        }
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            LinearGradient(
-                                colors: [Color(hex: "#FFD700")!, Color(hex: "#FFA500")!],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .shadow(color: Color(hex: "#FFD700")!.opacity(0.3), radius: 10, x: 0, y: 5)
-                    }
-                    .padding(.horizontal, 30)
-                } else {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                        .onAppear {
-                            Task {
-                                await storeKitManager.fetchProducts()
-                            }
-                        }
-                }
-                
-                Button("Restore Purchases") {
-                    Task {
-                        await storeKitManager.restorePurchases()
-                        if storeKitManager.isPro {
-                            dismiss()
-                        }
-                    }
-                }
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.5))
-                .padding(.top, 10)
-                
-                Spacer()
+            }
+
+            Text("DayZero Pro")
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [.white, Color(white: 0.85)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                )
+
+            Text("Every precious moment,\nperfected.")
+                .font(.system(size: 14, weight: .regular, design: .rounded))
+                .foregroundColor(.white.opacity(0.55))
+                .multilineTextAlignment(.center)
+                .lineSpacing(3)
+        }
+        .padding(.top, 6)
+    }
+
+    // MARK: - Feature Rows
+    private var featureRows: some View {
+        VStack(spacing: 10) {
+            ForEach(Array(features.enumerated()), id: \.offset) { index, feature in
+                GlassFeatureRow(
+                    systemIcon: feature.icon,
+                    title: feature.title,
+                    subtitle: feature.subtitle
+                )
+                .offset(x: featuresVisible ? 0 : 40)
+                .opacity(featuresVisible ? 1 : 0)
+                .animation(
+                    .spring(response: 0.5, dampingFraction: 0.75)
+                    .delay(Double(index) * 0.08 + 0.15),
+                    value: featuresVisible
+                )
             }
         }
-        .overlay(
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .font(.title2)
-                    .foregroundColor(.white.opacity(0.5))
+    }
+
+    // MARK: - Pricing Cards
+    private var pricingCards: some View {
+        HStack(spacing: 12) {
+            ForEach(PricingPlan.allCases, id: \.self) { plan in
+                PricingCard(
+                    plan: plan,
+                    isSelected: selectedPlan == plan,
+                    glowPulse: glowPulse
+                )
+                .onTapGesture {
+                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                        selectedPlan = plan
+                    }
+                }
             }
-            .padding(),
-            alignment: .topTrailing
+        }
+    }
+
+    // MARK: - CTA Button
+    private var ctaButton: some View {
+        Button {
+            Task {
+                isPurchasing = true
+                #if DEBUG
+                // Mock purchase for testing
+                try? await Task.sleep(nanoseconds: 600_000_000)
+                storeKitManager.isPro = true
+                dismiss()
+                #else
+                if let product = storeKitManager.products.first {
+                    try? await storeKitManager.purchase(product)
+                    if storeKitManager.isPro { dismiss() }
+                }
+                #endif
+                isPurchasing = false
+            }
+        } label: {
+            ZStack {
+                // Base gradient
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.55, green: 0.22, blue: 1.0),
+                                Color(red: 0.28, green: 0.12, blue: 0.88),
+                                Color(red: 0.04, green: 0.60, blue: 0.80)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(height: 58)
+
+                // Shimmer overlay
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                .clear,
+                                .white.opacity(0.18),
+                                .clear
+                            ],
+                            startPoint: .init(x: shimmerOffset / 340, y: 0),
+                            endPoint:   .init(x: shimmerOffset / 340 + 0.55, y: 1)
+                        )
+                    )
+                    .frame(height: 58)
+                    .clipped()
+
+                if isPurchasing {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                } else {
+                    HStack(spacing: 8) {
+                        Image(systemName: "lock.open.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                        Text("Unlock DayZero Pro")
+                            .font(.system(size: 17, weight: .bold, design: .rounded))
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+        .scaleEffect(glowPulse * 0.012 + 0.988)   // subtle breathing
+        .shadow(
+            color: Color(red: 0.42, green: 0.16, blue: 0.86).opacity(0.55 * glowPulse),
+            radius: 22 * glowPulse,
+            x: 0, y: 8
+        )
+        .disabled(isPurchasing)
+    }
+
+    // MARK: - Footer
+    private var footerLinks: some View {
+        VStack(spacing: 8) {
+            Button {
+                Task {
+                    isRestoring = true
+                    await storeKitManager.restorePurchases()
+                    if storeKitManager.isPro { dismiss() }
+                    isRestoring = false
+                }
+            } label: {
+                if isRestoring {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white.opacity(0.45)))
+                        .scaleEffect(0.75)
+                } else {
+                    Text("Restore Purchases")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white.opacity(0.45))
+                }
+            }
+
+            HStack(spacing: 4) {
+                Link("Terms of Use", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
+                Text("·").foregroundColor(.white.opacity(0.25))
+                Link("Privacy Policy", destination: URL(string: "https://dayzeroapp.com/privacy")!)
+            }
+            .font(.system(size: 11))
+            .foregroundColor(.white.opacity(0.30))
+        }
+    }
+
+    // MARK: - Animation Drivers
+    private func startBackgroundAnimation() {
+        withAnimation(.linear(duration: 12).repeatForever(autoreverses: false)) {
+            backgroundPhase = .pi * 2
+        }
+    }
+
+    private func startGlowPulse() {
+        withAnimation(.easeInOut(duration: 2.2).repeatForever(autoreverses: true)) {
+            glowPulse = 1.35
+        }
+    }
+
+    private func startShimmer() {
+        withAnimation(.linear(duration: 2.4).repeatForever(autoreverses: false).delay(0.8)) {
+            shimmerOffset = 340
+        }
+    }
+}
+
+// MARK: - Glass Feature Row
+private struct GlassFeatureRow: View {
+    let systemIcon: String
+    let title: String
+    let subtitle: String
+
+    var body: some View {
+        HStack(spacing: 14) {
+            ZStack {
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(red: 0.55, green: 0.22, blue: 1.0).opacity(0.55),
+                                Color(red: 0.04, green: 0.60, blue: 0.80).opacity(0.40)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 40, height: 40)
+                Image(systemName: systemIcon)
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white)
+                Text(subtitle)
+                    .font(.system(size: 11, weight: .regular))
+                    .foregroundColor(.white.opacity(0.50))
+            }
+
+            Spacer()
+
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 16))
+                .foregroundStyle(
+                    LinearGradient(
+                        colors: [Color(red: 0.55, green: 0.22, blue: 1.0), Color(red: 0.04, green: 0.60, blue: 0.80)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 11)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(.ultraThinMaterial)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .strokeBorder(.white.opacity(0.09), lineWidth: 1)
+                )
         )
     }
 }
 
-struct FeatureRow: View {
-    let icon: String
-    let text: String
-    
+// MARK: - Pricing Card
+private struct PricingCard: View {
+    let plan: PremiumPaywallView.PricingPlan
+    let isSelected: Bool
+    let glowPulse: CGFloat
+
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundColor(Color(hex: "#FFD700"))
-                .frame(width: 30)
-            
-            Text(text)
-                .font(.headline)
-                .foregroundColor(.white)
-            
-            Spacer()
+        ZStack(alignment: .topTrailing) {
+            VStack(spacing: 5) {
+                Text(plan.rawValue)
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(isSelected ? .white : .white.opacity(0.55))
+
+                Text(plan.price)
+                    .font(.system(size: 26, weight: .bold, design: .rounded))
+                    .foregroundColor(isSelected ? .white : .white.opacity(0.70))
+
+                Text(plan.subLabel)
+                    .font(.system(size: 10, weight: .medium))
+                    .foregroundColor(isSelected ? .white.opacity(0.75) : .white.opacity(0.38))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 18)
+            .padding(.horizontal, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(isSelected
+                          ? AnyShapeStyle(LinearGradient(
+                                colors: [
+                                    Color(red: 0.42, green: 0.16, blue: 0.86).opacity(0.70),
+                                    Color(red: 0.20, green: 0.08, blue: 0.60).opacity(0.60)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ))
+                          : AnyShapeStyle(.ultraThinMaterial)
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .strokeBorder(
+                                isSelected
+                                ? AnyShapeStyle(LinearGradient(
+                                    colors: [
+                                        Color(red: 0.70, green: 0.45, blue: 1.0),
+                                        Color(red: 0.20, green: 0.80, blue: 1.0)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ))
+                                : AnyShapeStyle(Color.white.opacity(0.08)),
+                                lineWidth: isSelected ? 1.8 : 1
+                            )
+                    )
+            )
+            .shadow(
+                color: isSelected
+                    ? Color(red: 0.42, green: 0.16, blue: 0.86).opacity(0.50 * glowPulse)
+                    : .clear,
+                radius: isSelected ? 16 * glowPulse : 0,
+                x: 0, y: 6
+            )
+            .scaleEffect(isSelected ? 1.025 : 1.0)
+
+            // Badge
+            if let badge = plan.badge {
+                Text(badge)
+                    .font(.system(size: 8, weight: .black))
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(
+                        Capsule()
+                            .fill(LinearGradient(
+                                colors: [Color(red: 1.0, green: 0.82, blue: 0.20), Color(red: 1.0, green: 0.50, blue: 0.10)],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ))
+                    )
+                    .offset(x: -10, y: -10)
+            }
         }
-        .padding(.horizontal, 40)
     }
+}
+
+// MARK: - Preview
+#Preview {
+    PremiumPaywallView()
+        .environmentObject(StoreKitManager.shared)
 }

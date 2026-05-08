@@ -21,7 +21,11 @@ struct DayZeroApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            print("Migration failed. Clearing store. Error: \(error)")
+            try? FileManager.default.removeItem(at: url)
+            try? FileManager.default.removeItem(at: url.deletingPathExtension().appendingPathExtension("sqlite-shm"))
+            try? FileManager.default.removeItem(at: url.deletingPathExtension().appendingPathExtension("sqlite-wal"))
+            return try! ModelContainer(for: schema, configurations: [modelConfiguration])
         }
     }()
 

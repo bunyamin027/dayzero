@@ -9,7 +9,6 @@ struct ContentView: View {
     
     @State private var showingAddSheet = false
     @State private var showingPaywall = false
-    @State private var showingCalendar = false
     @State private var selectedEvent: DayEvent? = nil
 
     var body: some View {
@@ -55,18 +54,6 @@ struct ContentView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 16) {
                         Button {
-                            if !storeKitManager.isPro {
-                                showingPaywall = true
-                            } else {
-                                showingCalendar = true
-                            }
-                        } label: {
-                            Image(systemName: "calendar.badge.plus")
-                                .font(.title3)
-                                .foregroundColor(.primary)
-                        }
-                        
-                        Button {
                             if events.count >= 3 && !storeKitManager.isPro {
                                 showingPaywall = true
                             } else {
@@ -88,9 +75,6 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
-            }
-            .sheet(isPresented: $showingCalendar) {
-                SmartImportSheet()
             }
         }
     }

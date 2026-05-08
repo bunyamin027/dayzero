@@ -5,7 +5,11 @@ import StoreKit
 class StoreKitManager: ObservableObject {
     static let shared = StoreKitManager()
     
+    #if DEBUG
+    @Published var isPro: Bool = true   // ← DEBUG: Pro açık, yayın öncesi false yap
+    #else
     @Published var isPro: Bool = false
+    #endif
     @Published var products: [Product] = []
     
     private let proProductID = "com.dayzero.pro"

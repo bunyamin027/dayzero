@@ -2,10 +2,18 @@ import WidgetKit
 import SwiftUI
 import SwiftData
 
+struct WidgetEventData {
+    let title: String
+    let targetDate: Date
+    let themeColorHex: String
+    let iconName: String
+    let tasks: [String]
+}
+
 struct Provider: TimelineProvider {
     @MainActor
     func placeholder(in context: Context) -> DayEventEntry {
-        DayEventEntry(date: Date(), event: fetchNextEvent())
+        DayEventEntry(date: Date(), event: WidgetEventData(title: "Sample Event", targetDate: Date().addingTimeInterval(86400*5), themeColorHex: "#818CF8", iconName: "star.fill", tasks: ["Buy tickets", "Pack bags", "Book hotel"]))
     }
 
     @MainActor
@@ -28,30 +36,47 @@ struct Provider: TimelineProvider {
     }
     
     @MainActor
-    private func fetchNextEvent() -> DayEvent? {
+    private func fetchNextEvent() -> WidgetEventData? {
         guard let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.dayzero.shared")?.appendingPathComponent("DayZero.sqlite") else { 
-            return DayEvent(title: "Err: No App Group", targetDate: Date(), themeColorHex: "#FF0000", iconName: "exclamationmark.triangle", isPremium: false) 
+            return nil
         }
         do {
-            let container = try ModelContainer(for: DayEvent.self, configurations: ModelConfiguration(url: url))
+            let schema = Schema([DayEvent.self, EventTask.self])
+            let container = try ModelContainer(for: schema, configurations: ModelConfiguration(url: url))
             let descriptor = FetchDescriptor<DayEvent>(sortBy: [SortDescriptor(\.targetDate)])
             let events = try container.mainContext.fetch(descriptor)
             
             if events.isEmpty {
-                return DayEvent(title: "Empty DB", targetDate: Date(), themeColorHex: "#FFA500", iconName: "tray", isPremium: false)
+                return nil
             }
             
             // Gelecekteki ilk etkinliği bul (yaklaşan), yoksa en sonuncuyu göster
-            return events.first(where: { $0.targetDate >= Date() }) ?? events.first
+            let event = events.first(where: { $0.targetDate >= Date() }) ?? events.first!
+            
+            // Taskleri al (sadece tamamlanmamış olanları)
+            let pendingTasks = (event.tasks ?? [])
+                .filter { !$0.isCompleted }
+                .sorted { $0.createdAt < $1.createdAt }
+                .prefix(3)
+                .map { $0.title }
+                
+            return WidgetEventData(
+                title: event.title,
+                targetDate: event.targetDate,
+                themeColorHex: event.themeColorHex,
+                iconName: event.iconName,
+                tasks: Array(pendingTasks)
+            )
         } catch {
-            return DayEvent(title: "Err: \(error.localizedDescription.prefix(15))", targetDate: Date(), themeColorHex: "#FF0000", iconName: "exclamationmark.triangle", isPremium: false)
+            print("Widget DB Error: \(error)")
+            return nil
         }
     }
 }
 
 struct DayEventEntry: TimelineEntry {
     let date: Date
-    let event: DayEvent?
+    let event: WidgetEventData?
 }
 
 struct DayZeroWidgetEntryView : View {
@@ -65,31 +90,56 @@ struct DayZeroWidgetEntryView : View {
             ZStack {
                 Color(hex: event.themeColorHex) ?? Color.blue
                 
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(alignment: .top) {
                         Image(systemName: event.iconName)
                             .font(.title3)
+                            .padding(.top, 4)
                         Spacer()
+                        VStack(alignment: .trailing, spacing: -2) {
+                            Text("\(abs(daysRemaining))")
+                                .font(.system(size: 32, weight: .black, design: .rounded))
+                            Text(daysRemaining >= 0 ? "DAYS LEFT" : "DAYS AGO")
+                                .font(.system(size: 9, weight: .bold))
+                                .opacity(0.8)
+                        }
                     }
                     
-                    Spacer()
-                    
-                    Text("\(abs(daysRemaining))")
-                        .font(.system(size: family == .systemSmall ? 40 : 50, weight: .black, design: .rounded))
-                        .minimumScaleFactor(0.5)
-                    
-                    Text(daysRemaining >= 0 ? "DAYS LEFT" : "DAYS AGO")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .opacity(0.8)
-                    
                     Text(event.title)
-                        .font(.headline)
-                        .lineLimit(2)
+                        .font(.system(size: 15, weight: .bold))
+                        .lineLimit(1)
                         .minimumScaleFactor(0.8)
+                        
+                    if family == .systemMedium || family == .systemLarge {
+                        if !event.tasks.isEmpty {
+                            VStack(alignment: .leading, spacing: 3) {
+                                ForEach(event.tasks, id: \.self) { task in
+                                    HStack(alignment: .top, spacing: 6) {
+                                        Circle()
+                                            .fill(.white.opacity(0.6))
+                                            .frame(width: 4, height: 4)
+                                            .padding(.top, 4)
+                                        Text(task)
+                                            .font(.system(size: 11, weight: .medium))
+                                            .lineLimit(1)
+                                            .opacity(0.9)
+                                    }
+                                }
+                            }
+                            .padding(.top, 4)
+                            Spacer(minLength: 0)
+                        } else {
+                            Spacer()
+                            Text("No pending tasks")
+                                .font(.caption2)
+                                .opacity(0.6)
+                        }
+                    } else {
+                        Spacer()
+                    }
                 }
                 .foregroundColor(.white)
-                .padding()
+                .padding(14)
             }
         } else {
             VStack {
