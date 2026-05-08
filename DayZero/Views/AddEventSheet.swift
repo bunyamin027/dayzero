@@ -870,144 +870,256 @@ struct SmartImportSheet: View {
     
     var body: some View {
         ZStack {
-            // Tam Koyu Arka Plan
-            Color.black.ignoresSafeArea()
-            MeshGradientBackground().opacity(0.4)
+            // Premium Background
+            GlowingMeshBackground()
             
-            VStack(spacing: 24) {
+            VStack(spacing: 0) {
                 // Header
-                HStack {
-                    Image(systemName: "wand.and.stars")
-                        .font(.title2)
-                        .foregroundColor(.white)
-                    Text("Smart Import")
-                        .font(.system(size: 24, weight: .black, design: .rounded))
-                        .foregroundColor(.white)
+                HStack(alignment: .center) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "wand.and.stars")
+                                .font(.title3)
+                                .foregroundStyle(LinearGradient(colors: [.white, .white.opacity(0.7)], startPoint: .top, endPoint: .bottom))
+                            Text("Smart Import")
+                                .font(.system(size: 28, weight: .black, design: .rounded))
+                                .foregroundColor(.white)
+                        }
+                        Text("Magically sync your life")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(.white.opacity(0.5))
+                    }
+                    
                     Spacer()
+                    
                     Button { dismiss() } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title)
-                            .foregroundColor(.white.opacity(0.4))
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundColor(.white)
+                            .padding(10)
+                            .background(.white.opacity(0.1))
+                            .clipShape(Circle())
                     }
                 }
-                .padding(.horizontal)
-                .padding(.top, 20)
+                .padding(.horizontal, 24)
+                .padding(.top, 24)
+                .padding(.bottom, 20)
                 
                 ScrollView(showsIndicators: false) {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 24) {
                         
                         // 1. Holidays Card
-                        ConfigCard(title: "PUBLIC HOLIDAYS", icon: "party.popper") {
+                        ConfigCard(title: "PUBLIC HOLIDAYS", icon: "party.popper.fill", color: Color(hex: "#F472B6")!) {
                             HStack {
-                                Text("Include Official Holidays")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Include Official Holidays")
+                                        .font(.system(size: 17, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.white)
+                                    Text("Add regional and national breaks")
+                                        .font(.system(size: 13))
+                                        .foregroundColor(.white.opacity(0.5))
+                                }
                                 Spacer()
                                 PremiumToggle(isOn: $manager.includeHolidays)
                             }
                         }
                         
-                        // 2. Select Sources (Active Calendars)
-                        ConfigCard(title: "SELECT SOURCES", icon: "calendar") {
+                        // 2. Select Sources
+                        ConfigCard(title: "CALENDAR SOURCES", icon: "calendar.badge.plus", color: Color(hex: "#818CF8")!) {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 12) {
                                     ForEach(manager.availableCalendars, id: \.calendarIdentifier) { cal in
                                         let isSelected = manager.selectedCalendarIDs.contains(cal.calendarIdentifier)
+                                        let calColor = Color(cgColor: cal.cgColor)
+                                        
                                         Button {
-                                            if isSelected { manager.selectedCalendarIDs.remove(cal.calendarIdentifier) }
-                                            else { manager.selectedCalendarIDs.insert(cal.calendarIdentifier) }
+                                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                                if isSelected { manager.selectedCalendarIDs.remove(cal.calendarIdentifier) }
+                                                else { manager.selectedCalendarIDs.insert(cal.calendarIdentifier) }
+                                            }
                                             UISelectionFeedbackGenerator().selectionChanged()
                                         } label: {
                                             HStack(spacing: 8) {
-                                                Circle().fill(Color(cgColor: cal.cgColor)).frame(width: 10, height: 10)
-                                                Text(cal.title).font(.system(size: 14, weight: .bold))
-                                                if isSelected { Image(systemName: "checkmark").font(.system(size: 10, weight: .bold)) }
+                                                Circle()
+                                                    .fill(calColor)
+                                                    .frame(width: 8, height: 8)
+                                                    .shadow(color: calColor.opacity(0.5), radius: 4)
+                                                
+                                                Text(cal.title)
+                                                    .font(.system(size: 14, weight: .bold, design: .rounded))
+                                                
+                                                if isSelected {
+                                                    Image(systemName: "checkmark")
+                                                        .font(.system(size: 10, weight: .black))
+                                                }
                                             }
-                                            .padding(.horizontal, 14)
-                                            .padding(.vertical, 10)
-                                            .background(isSelected ? Color(hex: "#4F46E5")! : Color.white.opacity(0.05))
-                                            .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(isSelected ? Color(hex: "#818CF8")! : Color.clear, lineWidth: 2))
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 12)
+                                            .background(
+                                                ZStack {
+                                                    if isSelected {
+                                                        LinearGradient(colors: [Color(hex: "#4F46E5")!, Color(hex: "#7C3AED")!], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                                    } else {
+                                                        Color.white.opacity(0.05)
+                                                    }
+                                                }
+                                            )
+                                            .continuousCorner(radius: 16)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                                    .strokeBorder(isSelected ? .white.opacity(0.2) : .white.opacity(0.1), lineWidth: 1)
+                                            )
                                             .foregroundColor(.white)
+                                            .scaleEffect(isSelected ? 1.05 : 1.0)
                                         }
                                         .buttonStyle(.plain)
                                     }
                                 }
+                                .padding(.vertical, 4)
                             }
                         }
                         
                         // 3. Dynamic List
                         VStack(alignment: .leading, spacing: 16) {
-                            Text("FOUND EVENTS (\(manager.selectedEventsCount) SELECTED)")
-                                .font(.system(size: 10, weight: .black))
-                                .foregroundColor(.white.opacity(0.5))
-                                .padding(.horizontal, 4)
+                            HStack {
+                                Text("FOUND EVENTS")
+                                    .font(.system(size: 11, weight: .black))
+                                    .foregroundColor(.white.opacity(0.4))
+                                    .tracking(1.5)
+                                Spacer()
+                                Text("\(manager.selectedEventsCount) SELECTED")
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundColor(Color(hex: "#818CF8"))
+                            }
+                            .padding(.horizontal, 8)
                             
-                            ForEach(manager.fetchedEvents, id: \.eventIdentifier) { event in
-                                let isSelected = !manager.deselectedEventIDs.contains(event.eventIdentifier)
-                                
-                                Button {
-                                    withAnimation(.spring()) {
-                                        if isSelected { manager.deselectedEventIDs.insert(event.eventIdentifier) }
-                                        else { manager.deselectedEventIDs.remove(event.eventIdentifier) }
-                                    }
-                                    UISelectionFeedbackGenerator().selectionChanged()
-                                } label: {
-                                    HStack(spacing: 16) {
-                                        Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                                            .font(.title2)
-                                            .foregroundColor(isSelected ? Color(hex: "#818CF8") : .white.opacity(0.2))
-                                        
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(event.title)
-                                                .font(.headline)
-                                                .foregroundColor(isSelected ? .white : .white.opacity(0.4))
-                                            
-                                            Text(event.startDate, style: .date)
-                                                .font(.caption.bold())
-                                                .foregroundColor(isSelected ? .white.opacity(0.6) : .white.opacity(0.3))
-                                        }
-                                        Spacer()
-                                    }
-                                    .padding()
-                                    .background(isSelected ? Color.white.opacity(0.05) : Color.black.opacity(0.3))
-                                    .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(isSelected ? Color.white.opacity(0.1) : Color.clear, lineWidth: 1))
-                                    .cornerRadius(16)
-                                    .blur(radius: isSelected ? 0 : 3)
-                                    .opacity(isSelected ? 1.0 : 0.4)
+                            if manager.fetchedEvents.isEmpty {
+                                VStack(spacing: 12) {
+                                    Image(systemName: "calendar.badge.exclamationmark")
+                                        .font(.system(size: 40))
+                                        .foregroundColor(.white.opacity(0.2))
+                                    Text("No events found in selected sources")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white.opacity(0.3))
                                 }
-                                .buttonStyle(.plain)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 40)
+                                .background(RoundedRectangle(cornerRadius: 24).fill(Color.white.opacity(0.02)))
+                            } else {
+                                ForEach(manager.fetchedEvents, id: \.eventIdentifier) { event in
+                                    let isSelected = !manager.deselectedEventIDs.contains(event.eventIdentifier)
+                                    
+                                    Button {
+                                        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                                            if isSelected { manager.deselectedEventIDs.insert(event.eventIdentifier) }
+                                            else { manager.deselectedEventIDs.remove(event.eventIdentifier) }
+                                        }
+                                        UISelectionFeedbackGenerator().selectionChanged()
+                                    } label: {
+                                        HStack(spacing: 16) {
+                                            ZStack {
+                                                if isSelected {
+                                                    Circle()
+                                                        .fill(LinearGradient(colors: [Color(hex: "#818CF8")!, Color(hex: "#4F46E5")!], startPoint: .top, endPoint: .bottom))
+                                                } else {
+                                                    Circle()
+                                                        .fill(Color.white.opacity(0.1))
+                                                }
+                                            }
+                                            .frame(width: 32, height: 32)
+                                                
+                                            Image(systemName: isSelected ? "checkmark" : "plus")        .font(.system(size: 12, weight: .black))
+                                                    .foregroundColor(isSelected ? .white : .white.opacity(0.3))
+                                            
+                                            VStack(alignment: .leading, spacing: 4) {
+                                                Text(event.title)
+                                                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                                                    .foregroundColor(isSelected ? .white : .white.opacity(0.4))
+                                                
+                                                HStack(spacing: 6) {
+                                                    Image(systemName: "clock.fill")
+                                                        .font(.system(size: 10))
+                                                    Text(event.startDate, style: .date)
+                                                        .font(.system(size: 12, weight: .semibold))
+                                                }
+                                                .foregroundColor(isSelected ? .white.opacity(0.6) : .white.opacity(0.2))
+                                            }
+                                            Spacer()
+                                            
+                                            if let cal = event.calendar {
+                                                Circle()
+                                                    .fill(Color(cgColor: cal.cgColor))
+                                                    .frame(width: 8, height: 8)
+                                                    .opacity(isSelected ? 1 : 0.3)
+                                            }
+                                        }
+                                        .padding(16)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                                .fill(isSelected ? Color.white.opacity(0.08) : Color.white.opacity(0.03))
+                                        )
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                                                .strokeBorder(isSelected ? .white.opacity(0.15) : .clear, lineWidth: 1)
+                                        )
+                                        .blur(radius: isSelected ? 0 : 0.5)
+                                        .scaleEffect(isSelected ? 1.0 : 0.98)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
                             }
                         }
                     }
-                    .padding(.horizontal)
-                    .padding(.bottom, 120)
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 140)
                 }
             }
             
             // Bottom Import Button
             VStack {
                 Spacer()
-                Button {
-                    importSelectedEvents()
-                } label: {
-                    HStack {
-                        Image(systemName: "wand.and.stars")
-                        Text("IMPORT \(manager.selectedEventsCount) EVENTS")
+                
+                VStack(spacing: 0) {
+                    Divider().background(Color.white.opacity(0.1))
+                    
+                    Button {
+                        importSelectedEvents()
+                    } label: {
+                        HStack(spacing: 12) {
+                            if manager.selectedEventsCount > 0 {
+                                Image(systemName: "sparkles")
+                                    .font(.title3)
+                            }
+                            Text(manager.selectedEventsCount > 0 ? "IMPORT \(manager.selectedEventsCount) EVENTS" : "SELECT EVENTS")
+                                .font(.system(size: 17, weight: .black, design: .rounded))
+                                .tracking(1)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 64)
+                        .background(
+                            ZStack {
+                                if manager.selectedEventsCount > 0 {
+                                    LinearGradient(colors: [Color(hex: "#6366F1")!, Color(hex: "#8B5CF6")!, Color(hex: "#D946EF")!], startPoint: .leading, endPoint: .trailing)
+                                        .shadow(color: Color(hex: "#6366F1")!.opacity(0.5), radius: 20, y: 10)
+                                } else {
+                                    Color.white.opacity(0.1)
+                                }
+                            }
+                        )
+                        .foregroundColor(manager.selectedEventsCount > 0 ? .white : .white.opacity(0.3))
+                        .continuousCorner(radius: 22)
+                        .padding(.horizontal, 24)
+                        .padding(.top, 20)
+                        .padding(.bottom, 40)
                     }
-                    .font(.system(size: 16, weight: .black, design: .rounded))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 60)
-                    .background(
-                        LinearGradient(colors: [Color(hex: "#4F46E5")!, Color(hex: "#7C3AED")!], startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .foregroundColor(.white)
-                    .cornerRadius(20)
-                    .shadow(color: Color(hex: "#7C3AED")!.opacity(0.3), radius: 10, y: 5)
+                    .buttonStyle(ScaleButtonStyle())
+                    .disabled(manager.selectedEventsCount == 0)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 30)
-                .disabled(manager.selectedEventsCount == 0)
-                .opacity(manager.selectedEventsCount == 0 ? 0.5 : 1.0)
+                .background(
+                    Rectangle()
+                        .fill(.ultraThinMaterial)
+                        .ignoresSafeArea()
+                )
             }
         }
         .preferredColorScheme(.dark)
@@ -1055,31 +1167,71 @@ struct SmartImportSheet: View {
 }
 
 // MARK: - Components
+struct GlowingMeshBackground: View {
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            // Deep Indigo Glow
+            RadialGradient(colors: [Color(hex: "#312E81")!.opacity(0.5), .clear], center: .topLeading, startRadius: 0, endRadius: 800)
+                .ignoresSafeArea()
+            
+            // Purple Glow
+            RadialGradient(colors: [Color(hex: "#581C87")!.opacity(0.4), .clear], center: .bottomTrailing, startRadius: 0, endRadius: 600)
+                .ignoresSafeArea()
+            
+            // Dynamic Accent
+            Circle()
+                .fill(Color(hex: "#C084FC")!.opacity(0.15))
+                .frame(width: 400)
+                .blur(radius: 100)
+                .offset(x: 100, y: -200)
+        }
+    }
+}
+
 struct ConfigCard<Content: View>: View {
     let title: String
     let icon: String
+    let color: Color
     let content: Content
     
-    init(title: String, icon: String, @ViewBuilder content: () -> Content) {
+    init(title: String, icon: String, color: Color = .white, @ViewBuilder content: () -> Content) {
         self.title = title
         self.icon = icon
+        self.color = color
         self.content = content()
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack(spacing: 8) {
                 Image(systemName: icon)
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundColor(color)
+                    .padding(6)
+                    .background(color.opacity(0.15))
+                    .clipShape(Circle())
+                
                 Text(title)
+                    .font(.system(size: 11, weight: .black))
+                    .foregroundColor(.white.opacity(0.5))
+                    .tracking(1.5)
             }
-            .font(.system(size: 10, weight: .black))
-            .foregroundColor(.white.opacity(0.4))
             
             content
         }
-        .padding()
-        .background(RoundedRectangle(cornerRadius: 24).fill(Color.white.opacity(0.05)))
-        .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(Color.white.opacity(0.1), lineWidth: 1))
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .fill(Color.white.opacity(0.03))
+                .background(.ultraThinMaterial.opacity(0.5))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 28, style: .continuous)
+                .strokeBorder(.white.opacity(0.1), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 10)
     }
 }
 
@@ -1091,9 +1243,24 @@ struct PremiumToggle: View {
             UISelectionFeedbackGenerator().selectionChanged()
         } label: {
             ZStack(alignment: isOn ? .trailing : .leading) {
-                Capsule().fill(isOn ? Color(hex: "#818CF8")! : Color.white.opacity(0.1)).frame(width: 50, height: 28)
-                Circle().fill(.white).frame(width: 24, height: 24).padding(2).shadow(radius: 2)
+                Capsule()
+                    .fill(isOn ? AnyShapeStyle(LinearGradient(colors: [Color(hex: "#818CF8")!, Color(hex: "#4F46E5")!], startPoint: .leading, endPoint: .trailing)) : AnyShapeStyle(Color.white.opacity(0.1)))
+                    .frame(width: 54, height: 30)
+                
+                Circle()
+                    .fill(.white)
+                    .frame(width: 26, height: 26)
+                    .padding(2)
+                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
             }
         }
+    }
+}
+
+struct ScaleButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
     }
 }

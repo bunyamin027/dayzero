@@ -31,6 +31,7 @@
 		DF3DFD1C062B228D16A3C455 /* EventDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829F518630EFCD6CCF45E7D5 /* EventDetailView.swift */; };
 		E45A69E8EB3E7F6C10D09EAE /* EventCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC340D9802CC0FFFBEAF297D /* EventCardView.swift */; };
 		E5BFFDBB109FECA0EF8DB302 /* CameraPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0070921CC15EBD7FFDCE68B /* CameraPicker.swift */; };
+		F050A46BBB46582C30789E54 /* AgenticNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3772DFA316D7534FDE83090A /* AgenticNotificationManager.swift */; };
 		FAE4FDB60D211977E6639846 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2A51C14C3F3F9DB1581A6EE /* LiveActivityManager.swift */; };
 /* End PBXBuildFile section */
 
@@ -66,6 +67,7 @@
 		2F5EE915EA2ED58231BEB628 /* AddEventSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEventSheet.swift; sourceTree = "<group>"; };
 		2F9737A7077673170F664C1D /* DayZeroApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayZeroApp.swift; sourceTree = "<group>"; };
 		32682768DCBD6AC8C5BF9C65 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		3772DFA316D7534FDE83090A /* AgenticNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgenticNotificationManager.swift; sourceTree = "<group>"; };
 		3A968BB88CEE25FE2399C17A /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		51E9E84D5F366EBEB4AE1831 /* DayZeroAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DayZeroAttributes.swift; sourceTree = "<group>"; };
 		5BB8D5E8C7B988D5BE1F7312 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
@@ -111,7 +113,7 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		412A6BCD2FACAFD6007B5FF5 /* Products */ = {
+		417913372FAEA0540094486E /* Products */ = {
 			isa = PBXGroup;
 			name = Products;
 			sourceTree = "<group>";
@@ -119,6 +121,7 @@
 		4838FB668FA88412A27B861F /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				3772DFA316D7534FDE83090A /* AgenticNotificationManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -255,7 +258,7 @@
 			projectDirPath = "";
 			projectReferences = (
 				{
-					ProductGroup = 412A6BCD2FACAFD6007B5FF5 /* Products */;
+					ProductGroup = 417913372FAEA0540094486E /* Products */;
 					ProjectRef = BEF9C040CAD5A738DCAD9360 /* DayZero.xcodeproj */;
 				},
 			);
@@ -285,6 +288,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9610AADA84F029A71650D07C /* AddEventSheet.swift in Sources */,
+				F050A46BBB46582C30789E54 /* AgenticNotificationManager.swift in Sources */,
 				8E0F57544AA66F58834EAA4F /* AntigravityStyles.swift in Sources */,
 				E5BFFDBB109FECA0EF8DB302 /* CameraPicker.swift in Sources */,
 				C74023A9EFD38E9A17EA59F6 /* ContentView.swift in Sources */,
