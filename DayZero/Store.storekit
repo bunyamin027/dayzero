@@ -81,6 +81,11 @@
               "description" : "14-day free trial, then $4.99/mo.",
               "displayName" : "Monthly Pro",
               "locale" : "en_US"
+            },
+            {
+              "description" : "14 günlük ücretsiz deneme, sonra aylık ₺149,99.",
+              "displayName" : "Dayzero Pro Aylık",
+              "locale" : "tr"
             }
           ],
           "productID" : "com.dayzero.pro.monthly",
@@ -109,6 +114,11 @@
               "description" : "14-day free trial, then $29.99/yr. Best value.",
               "displayName" : "Annual Pro",
               "locale" : "en_US"
+            },
+            {
+              "description" : "14 günlük ücretsiz deneme, sonra yıllık ₺899,99.",
+              "displayName" : "Dayzero Pro Yıllık",
+              "locale" : "tr"
             }
           ],
           "productID" : "com.dayzero.pro.annual",

@@ -24,11 +24,20 @@ struct PremiumPaywallView: View {
         case monthly = "Monthly"
         case annual  = "Annual"
 
-        var price: String {
-            switch self {
-            case .monthly: return "$4.99"
-            case .annual:  return "$29.99"
+        func price(from products: [Product]) -> String {
+            let id = (self == .monthly) ? "com.dayzero.pro.monthly" : "com.dayzero.pro.annual"
+            if let product = products.first(where: { $0.id == id }) {
+                return product.displayPrice
             }
+            return self == .monthly ? "$4.99" : "$29.99"
+        }
+
+        func displayName(from products: [Product]) -> String {
+            let id = (self == .monthly) ? "com.dayzero.pro.monthly" : "com.dayzero.pro.annual"
+            if let product = products.first(where: { $0.id == id }) {
+                return product.displayName
+            }
+            return self.rawValue
         }
 
         var subLabel: String {
@@ -276,7 +285,8 @@ struct PremiumPaywallView: View {
                 storeKitManager.isPro = true
                 dismiss()
                 #else
-                if let product = storeKitManager.products.first {
+                let productID = (selectedPlan == .monthly) ? "com.dayzero.pro.monthly" : "com.dayzero.pro.annual"
+                if let product = storeKitManager.products.first(where: { $0.id == productID }) {
                     try? await storeKitManager.purchase(product)
                     if storeKitManager.isPro { dismiss() }
                 }
@@ -323,7 +333,7 @@ struct PremiumPaywallView: View {
                     VStack(spacing: 2) {
                         Text("Start 14-Day Free Trial")
                             .font(.system(size: 17, weight: .bold, design: .rounded))
-                        Text("Then \(selectedPlan.price) / \(selectedPlan == .monthly ? "month" : "year")")
+                        Text("Then \(selectedPlan.price(from: storeKitManager.products)) / \(selectedPlan == .monthly ? "month" : "year")")
                             .font(.system(size: 11, weight: .medium))
                             .opacity(0.8)
                     }
@@ -461,11 +471,11 @@ private struct PricingCard: View {
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 5) {
-                Text(plan.rawValue)
+                Text(plan.displayName(from: storeKitManager.products))
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundColor(isSelected ? .white : .white.opacity(0.55))
 
-                Text(plan.price)
+                Text(plan.price(from: storeKitManager.products))
                     .font(.system(size: 26, weight: .bold, design: .rounded))
                     .foregroundColor(isSelected ? .white : .white.opacity(0.70))
 

@@ -764,10 +764,6 @@ struct IconScroller: View {
 
 
 // MARK: - Calendar Import Restored (Advanced)
-import EventKit
-import SwiftData
-import SwiftUI
-
 @MainActor
 class CalendarImportManager: ObservableObject {
     static let shared = CalendarImportManager()
