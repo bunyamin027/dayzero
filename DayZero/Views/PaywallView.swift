@@ -7,7 +7,9 @@ typealias PaywallView = PremiumPaywallView
 // MARK: - Premium Paywall View
 struct PremiumPaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
     @EnvironmentObject private var storeKitManager: StoreKitManager
+    @AppStorage("isPro") private var isProAppStorage: Bool = false
 
     // Pricing plan selection
     @State private var selectedPlan: PricingPlan = .annual
@@ -24,8 +26,11 @@ struct PremiumPaywallView: View {
         case monthly = "Monthly"
         case annual  = "Annual"
 
+        var id: String {
+            self == .monthly ? "com.dayzero.premium.monthly" : "com.dayzero.premium.yearly"
+        }
+
         func price(from products: [Product]) -> String {
-            let id = (self == .monthly) ? "com.dayzero.pro.monthly" : "com.dayzero.pro.annual"
             if let product = products.first(where: { $0.id == id }) {
                 return product.displayPrice
             }
@@ -33,7 +38,6 @@ struct PremiumPaywallView: View {
         }
 
         func displayName(from products: [Product]) -> String {
-            let id = (self == .monthly) ? "com.dayzero.pro.monthly" : "com.dayzero.pro.annual"
             if let product = products.first(where: { $0.id == id }) {
                 return product.displayName
             }
@@ -42,8 +46,8 @@ struct PremiumPaywallView: View {
 
         var subLabel: String {
             switch self {
-            case .monthly: return "per month"
-            case .annual:  return "per year · Save 50%"
+            case .monthly: return "Billed monthly"
+            case .annual:  return "Billed annually · Save 50%"
             }
         }
 
@@ -101,14 +105,36 @@ struct PremiumPaywallView: View {
 
                         // ── CTA Button ───────────────────────────────
                         ctaButton
+                        
+                        // ── Clear Subscription Terms ─────────────────
+                        termsText
 
-                        // ── Footer Links ─────────────────────────────
+                        // ── Footer Links & Disclosures ───────────────
                         footerLinks
                             .padding(.bottom, 28)
                     }
                     .padding(.horizontal, 20)
                     .padding(.top, 4)
                 }
+            }
+            
+            // ── Loading Overlay ───────────────────────────────────────
+            if isPurchasing || isRestoring {
+                Color.black.opacity(0.4)
+                    .ignoresSafeArea()
+                VStack(spacing: 16) {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(1.5)
+                    Text(isPurchasing ? "Processing..." : "Restoring...")
+                        .font(.system(size: 15, weight: .medium, design: .rounded))
+                        .foregroundColor(.white)
+                }
+                .padding(32)
+                .background(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .fill(.ultraThinMaterial)
+                )
             }
         }
         .ignoresSafeArea()
@@ -262,6 +288,7 @@ struct PremiumPaywallView: View {
             ForEach(PricingPlan.allCases, id: \.self) { plan in
                 PricingCard(
                     plan: plan,
+                    products: storeKitManager.products,
                     isSelected: selectedPlan == plan,
                     glowPulse: glowPulse
                 )
@@ -283,12 +310,28 @@ struct PremiumPaywallView: View {
                 // Mock purchase for testing
                 try? await Task.sleep(nanoseconds: 600_000_000)
                 storeKitManager.isPro = true
+                isProAppStorage = true
                 dismiss()
                 #else
-                let productID = (selectedPlan == .monthly) ? "com.dayzero.pro.monthly" : "com.dayzero.pro.annual"
+                let productID = selectedPlan.id
                 if let product = storeKitManager.products.first(where: { $0.id == productID }) {
-                    try? await storeKitManager.purchase(product)
-                    if storeKitManager.isPro { dismiss() }
+                    do {
+                        let result = try await product.purchase()
+                        switch result {
+                        case .success(let verification):
+                            guard case .verified(let transaction) = verification else { return }
+                            await transaction.finish()
+                            storeKitManager.isPro = true
+                            isProAppStorage = true
+                            dismiss()
+                        case .userCancelled, .pending:
+                            break
+                        @unknown default:
+                            break
+                        }
+                    } catch {
+                        print("Purchase failed: \(error.localizedDescription)")
+                    }
                 }
                 #endif
                 isPurchasing = false
@@ -326,19 +369,14 @@ struct PremiumPaywallView: View {
                     .frame(height: 58)
                     .clipped()
 
-                if isPurchasing {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                } else {
-                    VStack(spacing: 2) {
-                        Text("Start 14-Day Free Trial")
-                            .font(.system(size: 17, weight: .bold, design: .rounded))
-                        Text("Then \(selectedPlan.price(from: storeKitManager.products)) / \(selectedPlan == .monthly ? "month" : "year")")
-                            .font(.system(size: 11, weight: .medium))
-                            .opacity(0.8)
-                    }
-                    .foregroundColor(.white)
+                VStack(spacing: 2) {
+                    Text("Start 14-Day Free Trial")
+                        .font(.system(size: 17, weight: .bold, design: .rounded))
+                    Text("Then \(selectedPlan.price(from: storeKitManager.products)) / \(selectedPlan == .monthly ? "month" : "year")")
+                        .font(.system(size: 11, weight: .medium))
+                        .opacity(0.8)
                 }
+                .foregroundColor(.white)
             }
         }
         .scaleEffect(glowPulse * 0.012 + 0.988)   // subtle breathing
@@ -347,38 +385,76 @@ struct PremiumPaywallView: View {
             radius: 22 * glowPulse,
             x: 0, y: 8
         )
-        .disabled(isPurchasing)
+        .disabled(isPurchasing || isRestoring)
+    }
+    
+    // MARK: - Clear Terms Text
+    private var termsText: some View {
+        Text("14-Day Free Trial, then \(selectedPlan.price(from: storeKitManager.products)) \(selectedPlan == .monthly ? "per month" : "per year"). Cancel anytime before the trial ends and you will not be charged.")
+            .font(.system(size: 12, weight: .medium, design: .rounded))
+            .foregroundColor(.white.opacity(0.65))
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 10)
     }
 
-    // MARK: - Footer
+    // MARK: - Footer Links & Disclosures
     private var footerLinks: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 16) {
+            // Restore Purchases
             Button {
                 Task {
                     isRestoring = true
                     await storeKitManager.restorePurchases()
-                    if storeKitManager.isPro { dismiss() }
+                    // Re-check entitlements manually via StoreKit 2
+                    for await result in Transaction.currentEntitlements {
+                        guard case .verified(let transaction) = result else { continue }
+                        if transaction.productID == PricingPlan.monthly.id || transaction.productID == PricingPlan.annual.id {
+                            storeKitManager.isPro = true
+                            isProAppStorage = true
+                        }
+                    }
+                    if storeKitManager.isPro {
+                        isProAppStorage = true
+                        dismiss()
+                    }
                     isRestoring = false
                 }
             } label: {
-                if isRestoring {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: .white.opacity(0.45)))
-                        .scaleEffect(0.75)
-                } else {
-                    Text("Restore Purchases")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundColor(.white.opacity(0.45))
+                Text("Restore Purchases")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundColor(.white)
+                    .padding(.vertical, 8)
+                    .padding(.horizontal, 16)
+                    .background(Capsule().fill(.white.opacity(0.15)))
+            }
+            .disabled(isPurchasing || isRestoring)
+
+            // Auto-Renewal Disclosure (Guideline 3.1.2)
+            Text("Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period. Account will be charged for renewal within 24-hours prior to the end of the current period. You can manage subscriptions and turn off auto-renew in Account Settings.")
+                .font(.system(size: 10, weight: .regular))
+                .foregroundColor(.white.opacity(0.45))
+                .multilineTextAlignment(.center)
+                .lineSpacing(2)
+                .padding(.horizontal, 10)
+
+            // Legal Links
+            HStack(spacing: 12) {
+                Button("Terms of Use (EULA)") {
+                    if let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/") {
+                        openURL(url)
+                    }
+                }
+                
+                Text("·").foregroundColor(.white.opacity(0.3))
+                
+                Button("Privacy Policy") {
+                    if let url = URL(string: "https://dayzeroapp.com/privacy") {
+                        openURL(url)
+                    }
                 }
             }
-
-            HStack(spacing: 4) {
-                Link("Terms of Use", destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!)
-                Text("·").foregroundColor(.white.opacity(0.25))
-                Link("Privacy Policy", destination: URL(string: "https://dayzeroapp.com/privacy")!)
-            }
-            .font(.system(size: 11))
-            .foregroundColor(.white.opacity(0.30))
+            .font(.system(size: 11, weight: .medium))
+            .foregroundColor(.white.opacity(0.5))
         }
     }
 
@@ -465,17 +541,18 @@ private struct GlassFeatureRow: View {
 // MARK: - Pricing Card
 private struct PricingCard: View {
     let plan: PremiumPaywallView.PricingPlan
+    let products: [Product]
     let isSelected: Bool
     let glowPulse: CGFloat
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
             VStack(spacing: 5) {
-                Text(plan.displayName(from: storeKitManager.products))
+                Text(plan.displayName(from: products))
                     .font(.system(size: 13, weight: .semibold, design: .rounded))
                     .foregroundColor(isSelected ? .white : .white.opacity(0.55))
 
-                Text(plan.price(from: storeKitManager.products))
+                Text(plan.price(from: products))
                     .font(.system(size: 26, weight: .bold, design: .rounded))
                     .foregroundColor(isSelected ? .white : .white.opacity(0.70))
 
