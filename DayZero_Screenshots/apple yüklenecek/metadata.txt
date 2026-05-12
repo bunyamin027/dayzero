@@ -1,0 +1,35 @@
+APP STORE METADATA - DAYZERO
+
+APP NAME:
+Dayzero: Aesthetic Countdown
+
+SUBTITLE:
+Widgets, Tasks & Live Timer
+
+PROMOTIONAL TEXT:
+Track your life's big moments with stunning widgets and smart calendar sync. Try Dayzero Pro free for 14 days!
+
+DESCRIPTION:
+Track your most precious moments with Dayzero – the most aesthetic countdown app designed for your modern lifestyle.
+
+Dayzero isn't just a timer; it's a celebration of your upcoming milestones. Whether it's a dream vacation, a graduation, a product launch, or a loved one's birthday, Dayzero turns the wait into a beautiful experience.
+
+WHY YOU'LL LOVE DAYZERO:
+• Aesthetic Design: Premium glassmorphic interface with stunning mesh gradients.
+• Smart Calendar Sync: Automatically import events from your iOS Calendar.
+• Milestones & Tasks: Break down your big events into manageable checklists.
+• Home Screen Widgets: Keep your countdowns visible with beautifully designed widgets.
+• Live Activities: Track your events second-by-second right on your Lock Screen.
+• Custom Memories: Attach photos and personal notes to every event.
+
+Dayzero Pro:
+Unlock the full potential with unlimited events, premium typography, exclusive themes, and smart synchronization. Try it free for 14 days!
+
+KEYWORDS:
+countdown,timer,event,tracker,calendar,widget,reminder,birthday,vacation,tasks,milestone,aesthetic
+
+SUPPORT URL:
+https://bunyamin027.github.io/Legal/
+
+PRIVACY POLICY URL:
+https://bunyamin027.github.io/Legal/#privacy
