@@ -27,14 +27,14 @@ struct PremiumPaywallView: View {
         case annual  = "Annual"
 
         var id: String {
-            self == .monthly ? "com.dayzero.premium.monthly" : "com.dayzero.premium.yearly"
+            self == .monthly ? "com.dayzero.pro.monthly" : "com.dayzero.pro.annual"
         }
 
         func price(from products: [Product]) -> String {
             if let product = products.first(where: { $0.id == id }) {
                 return product.displayPrice
             }
-            return self == .monthly ? "$4.99" : "$29.99"
+            return self == .monthly ? "₺149,99" : "₺899,99"
         }
 
         func displayName(from products: [Product]) -> String {
@@ -293,49 +293,63 @@ struct PremiumPaywallView: View {
                     glowPulse: glowPulse
                 )
                 .onTapGesture {
-                    withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
-                        selectedPlan = plan
+                    if selectedPlan == plan {
+                        handlePurchase()
+                    } else {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                            selectedPlan = plan
+                        }
                     }
                 }
             }
         }
     }
 
+    private func handlePurchase() {
+        Task {
+            isPurchasing = true
+            #if DEBUG
+            // Mock purchase for testing
+            try? await Task.sleep(nanoseconds: 600_000_000)
+            storeKitManager.isPro = true
+            isProAppStorage = true
+            dismiss()
+            #else
+            let productID = selectedPlan.id
+            if let product = storeKitManager.products.first(where: { $0.id == productID }) {
+                do {
+                    let result = try await product.purchase()
+                    switch result {
+                    case .success(let verification):
+                        guard case .verified(let transaction) = verification else { return }
+                        await transaction.finish()
+                        storeKitManager.isPro = true
+                        isProAppStorage = true
+                        dismiss()
+                    case .userCancelled, .pending:
+                        break
+                    @unknown default:
+                        break
+                    }
+                } catch {
+                    print("Purchase failed: \(error.localizedDescription)")
+                }
+            } else {
+                print("Product not found: \(productID)")
+                // Try to fetch again if empty
+                if storeKitManager.products.isEmpty {
+                    await storeKitManager.fetchProducts()
+                }
+            }
+            #endif
+            isPurchasing = false
+        }
+    }
+
     // MARK: - CTA Button
     private var ctaButton: some View {
         Button {
-            Task {
-                isPurchasing = true
-                #if DEBUG
-                // Mock purchase for testing
-                try? await Task.sleep(nanoseconds: 600_000_000)
-                storeKitManager.isPro = true
-                isProAppStorage = true
-                dismiss()
-                #else
-                let productID = selectedPlan.id
-                if let product = storeKitManager.products.first(where: { $0.id == productID }) {
-                    do {
-                        let result = try await product.purchase()
-                        switch result {
-                        case .success(let verification):
-                            guard case .verified(let transaction) = verification else { return }
-                            await transaction.finish()
-                            storeKitManager.isPro = true
-                            isProAppStorage = true
-                            dismiss()
-                        case .userCancelled, .pending:
-                            break
-                        @unknown default:
-                            break
-                        }
-                    } catch {
-                        print("Purchase failed: \(error.localizedDescription)")
-                    }
-                }
-                #endif
-                isPurchasing = false
-            }
+            handlePurchase()
         } label: {
             ZStack {
                 // Base gradient
