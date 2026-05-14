@@ -33,7 +33,7 @@ DayZero is a premium, beautifully designed iOS countdown application that turns 
 ## 🔒 Privacy & Legal
 
 The central privacy policy and terms of use are hosted via GitHub Pages:
-[DayZero Privacy Policy](https://bunyamin027.github.io/Legal/)
+[DayZero Privacy Policy & Terms](https://bunyamin027.github.io/Legal/)
 
 ---
 *Designed and Developed by Bunyamin Apps*

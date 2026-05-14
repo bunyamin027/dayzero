@@ -18,7 +18,7 @@
             background: white;
             padding: 40px;
             border-radius: 20px;
-            shadow: 0 10px 30px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
         }
         h1 { color: #111; border-bottom: 2px solid #eee; padding-bottom: 10px; }
         h2 { color: #4F46E5; margin-top: 30px; }
@@ -26,17 +26,26 @@
         .footer { text-align: center; margin-top: 40px; font-size: 0.9em; color: #999; }
         nav { margin-bottom: 30px; text-align: center; }
         nav a { margin: 0 15px; color: #4F46E5; text-decoration: none; font-weight: 600; }
+        .contact-box {
+            background: #f0f0f5;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+        .contact-box p { margin: 4px 0; color: #333; }
+        .last-updated { color: #999; font-size: 13px; font-style: italic; }
     </style>
 </head>
 <body>
     <nav>
         <a href="#privacy">Privacy Policy</a>
         <a href="#terms">Terms of Use</a>
+        <a href="#contact">Contact</a>
     </nav>
 
     <div class="container">
         <h1 id="privacy">Privacy Policy</h1>
-        <p>Last updated: May 9, 2026</p>
+        <p class="last-updated">Last updated: May 14, 2026</p>
         
         <p>DayZero ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how your information is handled within the DayZero iOS application.</p>
 
@@ -48,36 +57,58 @@
         <p><strong>Photos & Camera:</strong> Access to your photo library and camera is used only to allow you to set custom backgrounds for your countdowns. These images stay on your device.</p>
 
         <h2>3. Third-Party Services</h2>
-        <p>DayZero does not use any third-party analytics or tracking tools. Your usage of the app is completely private.</p>
+        <p>DayZero does not use any third-party analytics, tracking tools, or advertising SDKs. Your usage of the app is completely private.</p>
 
         <h2>4. Data Security</h2>
-        <p>Since all data is stored locally, its security depends on your device's security features (FaceID, Passcode, etc.). We recommend keeping your device updated.</p>
+        <p>Since all data is stored locally, its security depends on your device's security features (Face ID, Touch ID, Passcode, etc.). We recommend keeping your device updated.</p>
+
+        <h2>5. Children's Privacy</h2>
+        <p>Our app does not knowingly collect personal information from children under 13. If you believe that a child has provided us with personal information, please contact us immediately.</p>
+
+        <h2>6. Changes to This Policy</h2>
+        <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.</p>
 
         <hr>
 
         <h1 id="terms">Terms of Use (EULA)</h1>
-        <p>Last updated: May 9, 2026</p>
+        <p class="last-updated">Last updated: May 14, 2026</p>
 
         <h2>1. Agreement to Terms</h2>
         <p>By downloading or using DayZero, these terms will automatically apply to you. You should make sure that you read them carefully before using the app.</p>
 
         <h2>2. Subscriptions</h2>
-        <p>DayZero Pro offers additional features via auto-renewable subscriptions. 
-            <ul>
-                <li><strong>Free Trial:</strong> We offer a 14-day free trial for new users. After the trial ends, the subscription will automatically convert to a paid subscription unless cancelled.</li>
-                <li><strong>Billing:</strong> Subscriptions are billed monthly or annually via your Apple ID account.</li>
-                <li><strong>Cancellation:</strong> You can manage or cancel your subscription at any time in your App Store Account Settings.</li>
-            </ul>
-        </p>
+        <p>DayZero Pro offers additional features via auto-renewable subscriptions.</p>
+        <ul>
+            <li><strong>Plans:</strong> Monthly and Annual subscription options are available.</li>
+            <li><strong>Free Trial:</strong> We offer a 14-day free trial for new subscribers. After the trial ends, the subscription will automatically convert to a paid subscription unless cancelled at least 24 hours before the trial expires.</li>
+            <li><strong>Payment:</strong> Payment will be charged to your Apple ID account at the confirmation of purchase (or at the end of the free trial period, if applicable).</li>
+            <li><strong>Auto-Renewal:</strong> Subscriptions automatically renew unless auto-renew is turned off at least 24 hours before the end of the current period.</li>
+            <li><strong>Renewal Charges:</strong> Your account will be charged for renewal within 24 hours prior to the end of the current period.</li>
+            <li><strong>Cancellation:</strong> You can manage or cancel your subscription at any time in your device's Settings > Apple ID > Subscriptions.</li>
+            <li><strong>Free Trial Forfeiture:</strong> Any unused portion of a free trial period will be forfeited when you purchase a subscription.</li>
+        </ul>
 
-        <h2>3. Usage Restrictions</h2>
-        <p>You may not attempt to extract the source code of the app, or translate the app into other languages without our permission. The app itself, and all the trademarks, copyright, database rights and other intellectual property rights related to it, still belong to DayZero.</p>
+        <h2>3. Standard EULA</h2>
+        <p>Unless otherwise stated, DayZero is subject to the <a href="https://www.apple.com/legal/internet-services/itunes/dev/stdeula/" target="_blank">Standard Apple Licensed Application End User License Agreement</a>.</p>
 
-        <h2>4. Disclaimer</h2>
-        <p>DayZero is provided "as is". We are not responsible for any data loss or missed events due to technical issues. It is the user's responsibility to ensure their countdowns are accurate.</p>
+        <h2>4. Usage Restrictions</h2>
+        <p>You may not attempt to extract the source code of the app, or translate the app into other languages without our permission. The app itself, and all the trademarks, copyright, database rights and other intellectual property rights related to it, still belong to Bunyamin Apps.</p>
+
+        <h2>5. Disclaimer</h2>
+        <p>DayZero is provided "as is" without warranty of any kind. We are not responsible for any data loss or missed events due to technical issues. It is the user's responsibility to ensure their countdowns are accurate.</p>
+
+        <hr>
+
+        <h1 id="contact">Developer Contact Information</h1>
+        <div class="contact-box">
+            <p><strong>Developer:</strong> Bunyamin Apps</p>
+            <p><strong>Email:</strong> <a href="mailto:bunyamin027@icloud.com">bunyamin027@icloud.com</a></p>
+            <p><strong>Website:</strong> <a href="https://bunyamin027.github.io/Legal/" target="_blank">bunyamin027.github.io/Legal</a></p>
+        </div>
+        <p style="margin-top: 15px; font-size: 14px; color: #999;">For any questions, concerns, or support requests regarding DayZero or this privacy policy, please contact us via email.</p>
 
         <div class="footer">
-            &copy; 2026 DayZero App. All rights reserved.
+            &copy; 2026 Bunyamin Apps. All rights reserved.
         </div>
     </div>
 </body>

@@ -33,6 +33,11 @@ struct DayZeroApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(storeKitManager)
+                .task {
+                    // Ensure products are loaded and entitlements checked on launch
+                    await storeKitManager.fetchProducts()
+                    await storeKitManager.updateCustomerProductStatus()
+                }
         }
         .modelContainer(sharedModelContainer)
     }

@@ -5,19 +5,28 @@ import StoreKit
 class StoreKitManager: ObservableObject {
     static let shared = StoreKitManager()
     
-    #if DEBUG
-    @Published var isPro: Bool = false
-    #else
-    @Published var isPro: Bool = false
-    #endif
+    @Published var isPro: Bool = false {
+        didSet {
+            // Sync with AppStorage so other views can access without EnvironmentObject
+            UserDefaults.standard.set(isPro, forKey: "isPro")
+        }
+    }
     @Published var products: [Product] = []
+    @Published var purchaseError: String? = nil
     
     private let proMonthlyID = "com.dayzero.pro.monthly"
     private let proAnnualID = "com.dayzero.pro.annual"
     private var updatesTask: Task<Void, Never>? = nil
     
     init() {
+        // Restore cached pro status from UserDefaults
+        self.isPro = UserDefaults.standard.bool(forKey: "isPro")
         updatesTask = listenForTransactions()
+        // Check entitlements on launch
+        Task {
+            await fetchProducts()
+            await updateCustomerProductStatus()
+        }
     }
     
     deinit {
@@ -28,8 +37,21 @@ class StoreKitManager: ObservableObject {
         do {
             let storeProducts = try await Product.products(for: [proMonthlyID, proAnnualID])
             self.products = storeProducts.sorted(by: { $0.price < $1.price })
+            self.purchaseError = nil
         } catch {
             print("Failed to fetch products: \(error)")
+            self.purchaseError = "Unable to load subscription options. Please check your internet connection."
+            // Retry after a short delay if products are empty
+            if products.isEmpty {
+                try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+                do {
+                    let retryProducts = try await Product.products(for: [proMonthlyID, proAnnualID])
+                    self.products = retryProducts.sorted(by: { $0.price < $1.price })
+                    self.purchaseError = nil
+                } catch {
+                    print("Retry fetch also failed: \(error)")
+                }
+            }
         }
     }
     
