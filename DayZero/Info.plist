@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Dayzero</string>
+	<string>DayZero</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -13,15 +13,13 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>Dayzero</string>
+	<string>$(PRODUCT_NAME)</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
-	<string>3</string>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
+	<string>5</string>
 	<key>NSCalendarsFullAccessUsageDescription</key>
 	<string>DayZero needs full access to your calendar to read your upcoming events and import them.</string>
 	<key>NSCalendarsUsageDescription</key>
@@ -39,8 +37,6 @@
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
-	<key>UIRequiresFullScreen</key>
-	<true/>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
@@ -52,5 +48,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>

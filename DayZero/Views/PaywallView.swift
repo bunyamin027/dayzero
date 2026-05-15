@@ -458,7 +458,7 @@ struct PremiumPaywallView: View {
                     if productsLoaded {
                         Text(trialText)
                             .font(.system(size: 17, weight: .bold, design: .rounded))
-                        Text("Then \(selectedPlan.price(from: storeKitManager.products)) / \(selectedPlan == .monthly ? "month" : "year")")
+                        Text("Then \(selectedPlan.price(from: storeKitManager.products))/\(selectedPlan == .monthly ? "month" : "year") · Auto-renews · Cancel anytime")
                             .font(.system(size: 11, weight: .medium))
                             .opacity(0.8)
                     } else {
@@ -486,22 +486,22 @@ struct PremiumPaywallView: View {
     
     // MARK: - Clear Terms Text (Apple Guideline 3.1.2 Compliance)
     private var termsText: some View {
-        VStack(spacing: 6) {
-            Text("Payment will be charged to your Apple ID account at the confirmation of purchase. The subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your App Store account settings after purchase.")
+        VStack(spacing: 8) {
+            if productsLoaded {
+                let price = selectedPlan.price(from: storeKitManager.products)
+                let period = selectedPlan == .monthly ? "month" : "year"
+                Text("14-day free trial, then \(price) per \(period). Auto-renews. Cancel anytime.")
+                    .font(.system(size: 13, weight: .semibold, design: .rounded))
+                    .foregroundColor(.white.opacity(0.75))
+                    .multilineTextAlignment(.center)
+            }
+            
+            Text("Payment will be charged to your Apple ID account at the confirmation of purchase, or at the end of the free trial period. The subscription automatically renews unless it is canceled at least 24 hours before the end of the current period. Your account will be charged for renewal within 24 hours prior to the end of the current period. You can manage and cancel your subscriptions by going to your device's Settings > Apple ID > Subscriptions. Any unused portion of a free trial period will be forfeited when you purchase a subscription.")
                 .font(.system(size: 11, weight: .regular, design: .rounded))
                 .foregroundColor(.white.opacity(0.55))
                 .multilineTextAlignment(.center)
                 .lineSpacing(2)
                 .padding(.horizontal, 10)
-            
-            if productsLoaded {
-                let price = selectedPlan.price(from: storeKitManager.products)
-                let period = selectedPlan == .monthly ? "month" : "year"
-                Text("14-day free trial, then \(price) per \(period).")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .foregroundColor(.white.opacity(0.70))
-                    .multilineTextAlignment(.center)
-            }
         }
     }
 
