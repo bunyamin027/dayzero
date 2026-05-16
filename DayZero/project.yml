@@ -4,7 +4,7 @@ options:
 settings:
   base:
     MARKETING_VERSION: "1.0"
-    CURRENT_PROJECT_VERSION: 5
+    CURRENT_PROJECT_VERSION: 6
 targets:
   DayZero:
     type: application
@@ -15,7 +15,7 @@ targets:
         DEVELOPMENT_TEAM: ZS89AATCJ2
         CODE_SIGN_STYLE: Automatic
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: 5
+        CURRENT_PROJECT_VERSION: 6
     entitlements:
       path: DayZero.entitlements
       properties:
@@ -58,7 +58,7 @@ targets:
         CODE_SIGN_STYLE: Automatic
         PRODUCT_BUNDLE_IDENTIFIER: com.dayzero.DayZero.DayZeroWidget
         MARKETING_VERSION: "1.0"
-        CURRENT_PROJECT_VERSION: 5
+        CURRENT_PROJECT_VERSION: 6
     entitlements:
       path: DayZeroWidget/DayZeroWidget.entitlements
       properties:

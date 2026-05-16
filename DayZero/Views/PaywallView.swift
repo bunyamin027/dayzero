@@ -22,6 +22,7 @@ struct PremiumPaywallView: View {
     @State private var isRestoring: Bool = false
     @State private var showError: Bool = false
     @State private var errorMessage: String = ""
+    @State private var showManageSubscriptions: Bool = false
 
     enum PricingPlan: String, CaseIterable {
         case monthly = "Monthly"
@@ -166,6 +167,7 @@ struct PremiumPaywallView: View {
             }
         }
         .ignoresSafeArea()
+        .manageSubscriptionsSheet(isPresented: $showManageSubscriptions)
         .onAppear {
             startBackgroundAnimation()
             startGlowPulse()
@@ -458,7 +460,7 @@ struct PremiumPaywallView: View {
                     if productsLoaded {
                         Text(trialText)
                             .font(.system(size: 17, weight: .bold, design: .rounded))
-                        Text("Then \(selectedPlan.price(from: storeKitManager.products))/\(selectedPlan == .monthly ? "month" : "year") · Auto-renews · Cancel anytime")
+                        Text("Then \(selectedPlan.price(from: storeKitManager.products)) per \(selectedPlan == .monthly ? "month" : "year") · Auto-renews · Cancel anytime")
                             .font(.system(size: 11, weight: .medium))
                             .opacity(0.8)
                     } else {
@@ -531,11 +533,9 @@ struct PremiumPaywallView: View {
             }
             .disabled(isPurchasing || isRestoring)
 
-            // Manage Subscriptions (Apple Required)
+            // Manage Subscriptions (Apple Required — native sheet)
             Button {
-                if let url = URL(string: "itms-apps://apps.apple.com/account/subscriptions") {
-                    openURL(url)
-                }
+                showManageSubscriptions = true
             } label: {
                 Text("Manage Subscriptions")
                     .font(.system(size: 13, weight: .medium))
@@ -543,8 +543,8 @@ struct PremiumPaywallView: View {
             }
 
             // Legal Links (All Required by Apple)
-            HStack(spacing: 12) {
-                Button("Terms of Use (EULA)") {
+            HStack(spacing: 8) {
+                Button("Terms of Use") {
                     if let url = URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/") {
                         openURL(url)
                     }
@@ -554,6 +554,14 @@ struct PremiumPaywallView: View {
                 
                 Button("Privacy Policy") {
                     if let url = URL(string: "https://bunyamin027.github.io/Legal/#privacy") {
+                        openURL(url)
+                    }
+                }
+                
+                Text("·").foregroundColor(.white.opacity(0.3))
+                
+                Button("Subscription Terms") {
+                    if let url = URL(string: "https://bunyamin027.github.io/Legal/#terms") {
                         openURL(url)
                     }
                 }

@@ -92,7 +92,7 @@
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Pro Monthly",
           "subscriptionGroupID" : "7B2D1E4A",
-          "type" : " RecurringSubscription"
+          "type" : "RecurringSubscription"
         },
         {
           "adHocOffers" : [
@@ -125,7 +125,7 @@
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Pro Annual",
           "subscriptionGroupID" : "7B2D1E4A",
-          "type" : " RecurringSubscription"
+          "type" : "RecurringSubscription"
         }
       ]
     }
